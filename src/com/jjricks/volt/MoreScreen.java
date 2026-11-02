@@ -69,10 +69,10 @@ public final class MoreScreen implements AppScreen {
     private View sectionBack;
     private TextView sectionTitle, sectionBackLabel;
     private static final String[] SECTIONS = {"App", "Scooters", "Security", "Lab", "Data", "About", "Developer"};
-    private static final String[] SECTION_LABELS = {"App preferences", "My scooters", "PIN & proximity unlock",
-            "Experimental controls", "Data & history", "About & permissions", "Developer options"};
-    private static final String[] SECTION_TITLES = {"App preferences", "My scooters", "PIN & proximity",
-            "Experimental controls", "Data & history", "About & permissions", "Developer options"};
+    private static final String[] SECTION_LABELS = {"Preferencias de la app", "Mis patinetes", "PIN y desbloqueo por proximidad",
+            "Controles experimentales", "Datos e historial", "Acerca de y permisos", "Opciones de desarrollador"};
+    private static final String[] SECTION_TITLES = {"Preferencias de la app", "Mis patinetes", "PIN y proximidad",
+            "Controles experimentales", "Datos e historial", "Acerca de y permisos", "Opciones de desarrollador"};
     private static final String[] SECTION_ICONS = {"settings", "scooter", "shield", "lab", "history", "info", "lab"};
     /** More › Developer options › Compatibility; legacy unfinished tests retain a recovery-only route. */
     private CompatibilityPanel compatibilityPanel;
@@ -162,7 +162,7 @@ public final class MoreScreen implements AppScreen {
         onboarding();
         sectionMenu = group();
         if (wide) sectionMenu.setPadding(ui.dp(4), ui.dp(4), ui.dp(4), ui.dp(4));
-        Row backup = row(sectionMenu, "download", "Back up & restore", null, () -> host.dataBackup(null, null));
+        Row backup = row(sectionMenu, "download", "Copia de seguridad y restauración", null, () -> host.dataBackup(null, null));
         backup.view.setTag("data-backup");
         // The wide menu pads every row alike, so this one lines up with the section rows below it.
         if (wide) backup.view.setPadding(ui.dp(8), ui.dp(9), ui.dp(8), ui.dp(9));
@@ -185,7 +185,7 @@ public final class MoreScreen implements AppScreen {
         footer.setTextColor(ui.muted); footer.setGravity(Gravity.CENTER);
         footer.setPadding(ui.dp(8), ui.dp(6), ui.dp(8), ui.dp(8));
         indexView.addView(footer, new LinearLayout.LayoutParams(-1, -2));
-        TextView report = ui.text("Report an issue", 13.5f, false);
+        TextView report = ui.text("Informar de un problema", 13.5f, false);
         report.setTypeface(ui.medium()); report.setTextColor(ui.accent); report.setGravity(Gravity.CENTER);
         report.setMinHeight(ui.dp(48)); report.setPadding(ui.dp(16), 0, ui.dp(16), 0);
         report.setFocusable(true); report.setClickable(true); report.setTag("more-report-issue");
@@ -217,7 +217,7 @@ public final class MoreScreen implements AppScreen {
             else if (section.equals("Developer")) developerOptions();
             else privacy();
         }
-        cardDestination = column(); sections.put("Units", cardDestination);
+        cardDestination = column(); sections.put("Unidades", cardDestination);
         sectionParent.addView(cardDestination, new LinearLayout.LayoutParams(-1, -2));
         units();
         if (knownSection("Compatibility")) {
@@ -278,7 +278,7 @@ public final class MoreScreen implements AppScreen {
 
     /** Units returns to its parent; otherwise wide Back leaves the tab, keeping its selected pane. */
     public boolean back() {
-        if ("Units".equals(selectedSection)) { selectSection("App"); return true; }
+        if ("Unidades".equals(selectedSection)) { selectSection("App"); return true; }
         if ("Compatibility".equals(selectedSection) && !standalone) {
             selectSection(developerEnabled() ? "Developer" : ""); return true;
         }
@@ -287,7 +287,7 @@ public final class MoreScreen implements AppScreen {
     }
 
     private boolean knownSection(String section) {
-        if ("Units".equals(section)) return true;
+        if ("Unidades".equals(section)) return true;
         if ("Compatibility".equals(section)) return developerEnabled() || testRecoveryNeeded();
         if ("Developer".equals(section) && !developerEnabled()) return false;
         for (String candidate : SECTIONS) if (candidate.equals(section)) return true;
@@ -309,14 +309,14 @@ public final class MoreScreen implements AppScreen {
         String shown = shownSection();
         boolean index = shown.isEmpty();
         indexView.setVisibility(index || wide ? View.VISIBLE : View.GONE);
-        boolean units = "Units".equals(shown);
+        boolean units = "Unidades".equals(shown);
         boolean compatibility = "Compatibility".equals(shown);
         sectionHeader.setVisibility(index || (standalone && !units) ? View.GONE : View.VISIBLE);
         sectionBack.setVisibility(units || compatibility || !wide ? View.VISIBLE : View.GONE);
-        String parent = units ? "App preferences" : compatibility && developerEnabled() ? "Developer options" : "More";
+        String parent = units ? "Preferencias de la app" : compatibility && developerEnabled() ? "Opciones de desarrollador" : "More";
         sectionBackLabel.setText(parent);
         sectionBack.setContentDescription("Back to " + parent);
-        if (units) sectionTitle.setText("Units");
+        if (units) sectionTitle.setText("Unidades");
         if (compatibility) sectionTitle.setText(developerEnabled() ? "Compatibility" : "Unfinished test");
         for (int i = 0; i < SECTIONS.length; i++) if (SECTIONS[i].equals(shown)) sectionTitle.setText(SECTION_TITLES[i]);
         for (Map.Entry<String,LinearLayout> section : sections.entrySet())
@@ -346,8 +346,8 @@ public final class MoreScreen implements AppScreen {
     }
     /** Deeper levels arrive from the right and leave the same way back; wide panes simply crossfade. */
     private int sectionDirection(String from, String to) {
-        if ("Units".equals(to) || "Compatibility".equals(to)) return 1;
-        if ("Units".equals(from) || "Compatibility".equals(from)) return -1;
+        if ("Unidades".equals(to) || "Compatibility".equals(to)) return 1;
+        if ("Unidades".equals(from) || "Compatibility".equals(from)) return -1;
         if (wide) return 0;
         return to.isEmpty() ? -1 : 1;
     }
@@ -448,9 +448,9 @@ public final class MoreScreen implements AppScreen {
         TextView label = sectionBackLabel = ui.text("More", 14, false); label.setTypeface(ui.medium()); label.setTextColor(ui.accent);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2); lp.leftMargin = ui.dp(4);
         link.addView(label, lp);
-        link.setContentDescription("Back to More"); link.setFocusable(true);
+        link.setContentDescription("Volver a Más"); link.setFocusable(true);
         link.setBackground(new RippleDrawable(ColorStateList.valueOf(Ui.withAlpha(ui.accent, 30)), null, ui.shape(Color.WHITE, 10, 0)));
-        link.setOnClickListener(v -> selectSection("Units".equals(selectedSection) ? "App"
+        link.setOnClickListener(v -> selectSection("Unidades".equals(selectedSection) ? "App"
                 : "Compatibility".equals(selectedSection) && developerEnabled() ? "Developer" : ""));
         return link;
     }
@@ -697,25 +697,25 @@ public final class MoreScreen implements AppScreen {
 
     private void onboarding() {
         LinearLayout c = ui.card();
-        TextView title = ui.text("Your scooter. Your data.", 19, true); title.setPadding(0, 0, 0, ui.dp(4)); c.addView(title);
+        TextView title = ui.text("Tu patinete. Tus datos.", 19, true); title.setPadding(0, 0, 0, ui.dp(4)); c.addView(title);
         if (Build.VERSION.SDK_INT >= 28) title.setAccessibilityHeading(true);
         onboardingCard = c; cardDestination.addView(c);
         // The setup checklist: each step shows its number until it is done, then a check.
         LinearLayout actions = ui.groupCard(); actions.setBackground(null); actions.setPadding(0, 0, 0, 0);
         c.addView(actions);
-        onboardingImport = row(actions, "download", "Import my owner setup", null, () -> { if (canEditProfiles()) host.importOwner(); });
+        onboardingImport = row(actions, "download", "Importar mi config. de propietario", null, () -> { if (canEditProfiles()) host.importOwner(); });
         profileEditActions.add(onboardingImport);
-        onboardingNearby = row(actions, "bluetooth", "Allow Nearby devices", null, host::requestBluetooth);
+        onboardingNearby = row(actions, "bluetooth", "Permitir dispositivos cercanos", null, host::requestBluetooth);
         onboardingConnect = row(actions, "scooter", "Connect", null, () -> {
             ScooterProfiles.Profile p = active();
-            if (p == null || !p.configured()) { host.toast("Import your owner setup first"); return; }
+            if (p == null || !p.configured()) { host.toast("Importa primero tu config. de propietario"); return; }
             host.connect();
         });
-        row(actions, "info", "Owner setup guide", null, () -> { OnboardingScreen.restart(host.activity()); host.rebuild(); });
+        row(actions, "info", "Guía de configuración de propietario", null, () -> { OnboardingScreen.restart(host.activity()); host.rebuild(); });
     }
     private void checklistStep(Row row, int number, boolean done) {
         pill(row.value, done ? "✓" : String.valueOf(number), done ? ui.ok : ui.muted, done);
-        row.value.setContentDescription(done ? "Done" : "Step " + number);
+        row.value.setContentDescription(done ? "Listo" : "Step " + number);
     }
 
     // ---- Shared dialog pieces -----------------------------------------------------------
@@ -741,11 +741,11 @@ public final class MoreScreen implements AppScreen {
 
     private boolean canEditProfiles() {
         ScooterService s = service();
-        if (s == null) { host.toast("Your local scooter service is starting."); return false; }
+        if (s == null) { host.toast("El servicio local de patinete se está iniciando."); return false; }
         String unavailable = s.scooterChangeUnavailable();
         if (unavailable != null) { host.toast(unavailable); return false; }
         if (s.ble.state() != BleController.State.DISCONNECTED || s.ble.pending() != null) {
-            host.toast("Disconnect first"); return false;
+            host.toast("Desconecta primero"); return false;
         }
         return true;
     }
@@ -778,11 +778,11 @@ public final class MoreScreen implements AppScreen {
         buttons.addView(left, lp); buttons.addView(right, rp); box.addView(buttons);
         return new TextView[] {left, right};
     }
-    /** Destructive confirmation: short title, the subject named in the body, "Cancel" and a red action. */
+    /** Destructive confirmation: short title, the subject named in the body, "Cancelar" and a red action. */
     private void confirm(String title, String body, String action, Runnable onConfirm) {
         LinearLayout box = dialogBox(title, body);
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).create();
-        dialogButtons(box, "Cancel", dialog::dismiss, action, () -> { dialog.dismiss(); onConfirm.run(); });
+        dialogButtons(box, "Cancelar", dialog::dismiss, action, () -> { dialog.dismiss(); onConfirm.run(); });
         show(dialog);
     }
     private void show(AlertDialog dialog) {
@@ -804,7 +804,7 @@ public final class MoreScreen implements AppScreen {
     // ---- My scooters --------------------------------------------------------------------
 
     private void profiles() {
-        addScooterButton = ui.secondaryButton("Add a scooter", this::addScooter);
+        addScooterButton = ui.secondaryButton("Añadir un patinete", this::addScooter);
         ui.decorate(addScooterButton, "plus");
         addScooterButton.setMinHeight(ui.dp(56));
         addScooterButton.setTag("scooters-add");
@@ -846,7 +846,7 @@ public final class MoreScreen implements AppScreen {
             top.addView(pencil, pp); edit = pencil;
             card.addView(top);
             stateLine = row(); stateLine.setPadding(0, ui.dp(8), 0, 0);
-            current = ui.text("Current", 11, true); current.setTextColor(ui.text);
+            current = ui.text("Actual", 11, true); current.setTextColor(ui.text);
             current.setPadding(ui.dp(8), ui.dp(4), ui.dp(8), ui.dp(4));
             current.setBackground(ui.shape(ui.raised, 100, ui.outline));
             LinearLayout.LayoutParams chip = new LinearLayout.LayoutParams(-2, -2); chip.rightMargin = ui.dp(8);
@@ -856,7 +856,7 @@ public final class MoreScreen implements AppScreen {
             lastSeen = ui.caption(""); lastSeen.setPadding(0, ui.dp(5), 0, 0); card.addView(lastSeen);
             LinearLayout actions = row(); actions.setPadding(0, ui.dp(12), 0, 0);
             connect = ui.button("Connect", () -> connectScooter(id)); connect.setTag("scooter-connect-" + id);
-            use = ui.secondaryButton("Use this scooter", () -> useScooter(id)); use.setTag("scooter-use-" + id);
+            use = ui.secondaryButton("Usar este patinete", () -> useScooter(id)); use.setTag("scooter-use-" + id);
             actions.addView(connect, new LinearLayout.LayoutParams(-1, -2));
             actions.addView(use, new LinearLayout.LayoutParams(-1, -2));
             card.addView(actions);
@@ -870,7 +870,7 @@ public final class MoreScreen implements AppScreen {
     /** One guard for switching, adding and forgetting; none can silently end a recording. */
     private boolean canChangeScooter() {
         ScooterService s = service();
-        String unavailable = s == null ? "Your local scooter service is starting." : s.scooterChangeUnavailable();
+        String unavailable = s == null ? "El servicio local de patinete se está iniciando." : s.scooterChangeUnavailable();
         if (unavailable != null) { host.toast(unavailable); return false; }
         return !closed;
     }
@@ -906,9 +906,9 @@ public final class MoreScreen implements AppScreen {
     }
     private void editScooter(String id) {
         ScooterProfiles.Profile p = findScooter(id); if (closed || p == null) return;
-        LinearLayout box = dialogBox("Edit scooter", null);
-        EditText name = input("Scooter name", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, false);
-        name.setContentDescription("Scooter name");
+        LinearLayout box = dialogBox("Editar patinete", null);
+        EditText name = input("Nombre del patinete", InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES, false);
+        name.setContentDescription("Nombre del patinete");
         name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(60)}); name.setText(p.name); name.selectAll(); box.addView(name);
         String modelDetail = ModelRegistry.modelLine(p.savedDescriptor());
         if (!modelDetail.isEmpty()) note(box, modelDetail);
@@ -917,13 +917,13 @@ public final class MoreScreen implements AppScreen {
         TextView model = null;
         if (!volt) {
             if (!p.ownerModel.isEmpty()) note(box, "Your answer: " + p.ownerModel);
-            model = ui.secondaryButton(p.ownerModel.isEmpty() ? "Which model is it?" : "Change model", null); model.setTag("scooter-model-" + id);
+            model = ui.secondaryButton(p.ownerModel.isEmpty() ? "¿Qué modelo es?" : "Cambiar modelo", null); model.setTag("scooter-model-" + id);
             box.addView(model);
         }
-        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancel", null)
-                .setPositiveButton("Save name", null).create();
+        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancelar", null)
+                .setPositiveButton("Guardar nombre", null).create();
         if (model != null) model.setOnClickListener(v -> { dialog.dismiss(); host.chooseScooterModel(id); });
-        TextView forget = ui.dangerButton("Forget this scooter", () -> {
+        TextView forget = ui.dangerButton("Olvidar este patinete", () -> {
             if (!canChangeScooter()) return;
             dialog.dismiss(); forgetScooter(id);
         });
@@ -932,7 +932,7 @@ public final class MoreScreen implements AppScreen {
         show(dialog);
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             ScooterProfiles.Profile target = findScooter(id); if (closed || target == null) { dialog.dismiss(); return; }
-            String value = name.getText().toString().trim(); if (value.isEmpty()) { name.setError("Enter a scooter name"); return; }
+            String value = name.getText().toString().trim(); if (value.isEmpty()) { name.setError("Introduce un nombre de patinete"); return; }
             target.name = value; target.nameDefault = false; service().profiles.update(target); dialog.dismiss(); host.redraw();
         });
         name.requestFocus();
@@ -941,11 +941,11 @@ public final class MoreScreen implements AppScreen {
     private void forgetScooter(String id) {
         if (!canChangeScooter()) return;
         ScooterProfiles.Profile p = findScooter(id); if (p == null) return;
-        LinearLayout box = dialogBox("Forget " + p.name + "?", "Removes its connection setup from this phone. Saved rides and charge recordings stay.");
+        LinearLayout box = dialogBox("Forget " + p.name + "?", "Elimina la configuración de conexión de este teléfono. Los viajes y registros de carga guardados se mantienen.");
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).create();
-        TextView backup = ui.secondaryButton("Save backup first", () -> { dialog.dismiss(); host.dataBackup(false, null); });
+        TextView backup = ui.secondaryButton("Guardar copia primero", () -> { dialog.dismiss(); host.dataBackup(false, null); });
         box.addView(backup);
-        dialogButtons(box, "Cancel", dialog::dismiss, "Forget", () -> {
+        dialogButtons(box, "Cancelar", dialog::dismiss, "Olvidar", () -> {
             if (!canChangeScooter()) return;
             ScooterService s = service(); ScooterProfiles.Profile target = findScooter(id), selected = active();
             if (target == null) { dialog.dismiss(); return; }
@@ -962,41 +962,41 @@ public final class MoreScreen implements AppScreen {
     // ---- App preferences ----------------------------------------------------------------
 
     private void preferences() {
-        segmentedField("Appearance", "theme", new String[]{"Dark", "Follow system", "Light"},
+        segmentedField("Apariencia", "theme", new String[]{"Oscuro", "Seguir al sistema", "Claro"},
                 new String[]{"dark", "system", "light"}, "dark");
-        segmentedField("Live Stats detail", "stats_density", new String[]{"Comfortable", "Dense"},
+        segmentedField("Detalle de Estadísticas en vivo", "stats_density", new String[]{"Cómodo", "Denso"},
                 new String[]{"comfortable", "dense"}, "comfortable");
         View spacer = new View(host.activity());
         cardDestination.addView(spacer, new LinearLayout.LayoutParams(-1, ui.dp(16)));
         LinearLayout display = group();
         display.setTag("preference-display-options");
-        Row units = row(display, "ruler", "Units", null, () -> selectSection("Units"));
+        Row units = row(display, "ruler", "Unidades", null, () -> selectSection("Unidades"));
         units.view.setTag("preference-units-menu");
         valueRefreshers.add(() -> units.value(unitsSummary()));
-        Row text = row(display, "text", "Text size", null, this::textSize);
+        Row text = row(display, "text", "Tamaño de texto", null, this::textSize);
         valueRefreshers.add(() -> text.value(Math.round(settings().getFloat("text_scale", 1f) * 100) + "%"));
-        preferenceToggle(display, "vibrate", "Haptic feedback", null, Haptics.PREFERENCE, true);
-        Row map = row(display, "map", "Map settings", null, this::mapSettings);
+        preferenceToggle(display, "vibrate", "Respuesta táctil", null, Haptics.PREFERENCE, true);
+        Row map = row(display, "map", "Ajustes del mapa", null, this::mapSettings);
         valueRefreshers.add(() -> map.value(basemapSummary()));
-        label("Connection & recording");
+        label("Conexión y grabación");
         LinearLayout connection = group();
-        Row rate = row(connection, "clock", "Telemetry refresh", null, this::telemetryRate);
+        Row rate = row(connection, "clock", "Actualización de telemetría", null, this::telemetryRate);
         valueRefreshers.add(() -> rate.value(settings().getInt("poll_interval_ms", 2000) / 1000 + " s"));
-        preferenceToggle(connection, "bluetooth", "Connect automatically", null, "auto_connect", true);
-        preferenceToggle(connection, "bluetooth", "Stay connected in background", "Recordings always stay connected", "background_connection", false);
-        preferenceToggle(connection, "screen", "Keep screen awake", "While recording", "keep_screen_awake", true);
+        preferenceToggle(connection, "bluetooth", "Conectar automáticamente", null, "auto_connect", true);
+        preferenceToggle(connection, "bluetooth", "Permanecer conectado en segundo plano", "Las grabaciones siempre permanecen conectadas", "background_connection", false);
+        preferenceToggle(connection, "screen", "Mantener pantalla encendida", "Durante la grabación", "keep_screen_awake", true);
         // Default on. ScooterService/RideAutoStopPolicy decide; this only stores the choice.
-        preferenceToggle(connection, "walk", "End parked rides", "10 s after Bluetooth drops at a stop", "ride_auto_stop", true);
+        preferenceToggle(connection, "walk", "Finalizar viajes aparcado", "10 s después de perder Bluetooth detenido", "ride_auto_stop", true);
         // Battery use is the one setting that decides whether long background recordings survive:
         // show it as the value and open Android's page for this app directly.
-        Row background = row(connection, "battery", "Background recording", null,
+        Row background = row(connection, "battery", "Grabación en segundo plano", null,
                 () -> openAndroidSettings(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS));
         valueRefreshers.add(() -> {
             boolean unrestricted = batteryUnrestricted();
-            background.value(unrestricted ? "Unrestricted ✓" : "Optimized ⚠");
+            background.value(unrestricted ? "Sin restricciones ✓" : "Optimizado ⚠");
             background.value.setTextColor(unrestricted ? ui.ok : ui.orange);
-            background.value.setContentDescription(unrestricted ? "Battery use unrestricted"
-                    : "Battery optimized; long recordings may stop. Opens battery settings");
+            background.value.setContentDescription(unrestricted ? "Uso de batería sin restricciones"
+                    : "Batería optimizada; grabaciones largas pueden detenerse. Abre ajustes de batería");
         });
     }
     private boolean batteryUnrestricted() {
@@ -1005,7 +1005,7 @@ public final class MoreScreen implements AppScreen {
             return power != null && power.isIgnoringBatteryOptimizations(host.activity().getPackageName());
         } catch (RuntimeException unavailable) { return false; }
     }
-    /** Units row value, e.g. "mi · °C · 12h"; "Follow system" resolves to the phone's clock. */
+    /** Units row value, e.g. "mi · °C · 12h"; "Seguir al sistema" resolves to the phone's clock. */
     private String unitsSummary() {
         String units = settings().getString("units", "mi"), temperature = settings().getString("temperature_unit", "c");
         String time = settings().getString("time_format", "system");
@@ -1018,7 +1018,7 @@ public final class MoreScreen implements AppScreen {
         SharedPreferences settings = settings();
         if (!MapPreferences.enabled(settings)) return "Off";
         String url = MapSource.load(settings).url;
-        return MapSource.USGS_URL.equals(url) ? "USGS" : MapSource.OSM_URL.equals(url) ? "OSM" : "Custom";
+        return MapSource.USGS_URL.equals(url) ? "USGS" : MapSource.OSM_URL.equals(url) ? "OSM" : "Personalizado";
     }
     private void mapSettings() {
         AlertDialog dialog = MapPreferences.show(host);
@@ -1058,7 +1058,7 @@ public final class MoreScreen implements AppScreen {
                 new String[]{"mi", "km", "dual"}, "mi");
         segmentedField("Temperature", "temperature_unit", new String[]{"Celsius · °C", "Fahrenheit · °F"},
                 new String[]{"c", "f"}, "c");
-        segmentedField("Time format", "time_format", new String[]{"Follow system", "12 hour", "24 hour"},
+        segmentedField("Time format", "time_format", new String[]{"Seguir al sistema", "12 hour", "24 hour"},
                 new String[]{"system", "12h", "24h"}, "system");
     }
     private void segmentedField(String title, String key, String[] labels, String[] values, String fallback) {
@@ -1171,7 +1171,7 @@ public final class MoreScreen implements AppScreen {
     }
 
     private void textSize() {
-        LinearLayout box = dialogBox("Text size", null);
+        LinearLayout box = dialogBox("Tamaño de texto", null);
         TextView sample = ui.text("Easy to read, folded or open", 18, true); box.addView(sample);
         SeekBar seek = new SeekBar(host.activity()); seek.setMax(12);
         int initial = Math.round((settings().getFloat("text_scale", 1f) - 0.8f) / 0.05f);
@@ -1186,7 +1186,7 @@ public final class MoreScreen implements AppScreen {
             @Override public void onStartTrackingTouch(SeekBar s) { }
             @Override public void onStopTrackingTouch(SeekBar s) { }
         }); preview.run();
-        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancel", null)
+        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancelar", null)
                 .setPositiveButton("Apply", (d, which) -> {
                     settings().edit().putFloat("text_scale", 0.8f + seek.getProgress() * 0.05f).apply(); host.rebuild();
                 }).create(); show(dialog);
@@ -1195,15 +1195,15 @@ public final class MoreScreen implements AppScreen {
         final int[] intervals = {2000, 5000, 10000};
         int stored = settings().getInt("poll_interval_ms", 2000), selected = 0;
         for (int i = 0; i < intervals.length; i++) if (stored == intervals[i]) selected = i;
-        LinearLayout box = dialogBox("Telemetry refresh", "Rides always 2 s");
-        SegmentedSelector selector = new SegmentedSelector(ui, "Telemetry refresh",
+        LinearLayout box = dialogBox("Actualización de telemetría", "Rides always 2 s");
+        SegmentedSelector selector = new SegmentedSelector(ui, "Actualización de telemetría",
                 new String[]{"2 seconds", "5 seconds", "10 seconds"}, choice -> {
                     settings().edit().putInt("poll_interval_ms", intervals[choice]).apply();
                     refresh();
                 });
         selector.select(selected, false); box.addView(selector, new LinearLayout.LayoutParams(-1, -2));
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box)
-                .setPositiveButton("Done", null).create(); show(dialog);
+                .setPositiveButton("Listo", null).create(); show(dialog);
     }
 
     // ---- PIN & proximity ----------------------------------------------------------------
@@ -1218,12 +1218,12 @@ public final class MoreScreen implements AppScreen {
         pinRefresh = rowButton(pinRow, "history", "Read PIN state", () -> { service().ble.readPin(); refresh(); });
         pinSpinner = rowSpinner(pinRow);
         setPinRow = row(pin, "pencil", "Set or change PIN", null, this::setPin);
-        label("Proximity unlock");
+        label("Desbloqueo por proximidad");
         LinearLayout near = group();
-        bondRow = row(near, "bluetooth", "Pair this phone with scooter", null,
+        bondRow = row(near, "bluetooth", "Vincular este teléfono con el patinete", null,
                 () -> { service().ble.bond(); host.toast(service().ble.message()); refresh(); });
         bondRow.icon.step = "2";
-        proximityRow = toggleRow(near, "bluetooth", "Proximity unlock", null,
+        proximityRow = toggleRow(near, "bluetooth", "Desbloqueo por proximidad", null,
                 enabled -> { service().ble.set("proximity_key", enabled ? 1 : 0); host.toast(service().ble.message()); refresh(); });
         proximityRow.icon.step = "3";
         proximitySpinner = rowSpinner(proximityRow);
@@ -1243,7 +1243,7 @@ public final class MoreScreen implements AppScreen {
         cardDestination.addView(securityConnect);
         securityNotice = footnote("");
         LinearLayout guide = group();
-        row(guide, "info", "Unlock without phone", null, this::pinGuide);
+        row(guide, "info", "Desbloquear sin teléfono", null, this::pinGuide);
     }
     private String proximityReason;
     /** A 48dp icon button placed just before a row's switch. */
@@ -1260,7 +1260,7 @@ public final class MoreScreen implements AppScreen {
     private View rowSpinner(Row r) {
         android.widget.ProgressBar bar = new android.widget.ProgressBar(host.activity(), null, android.R.attr.progressBarStyleSmall);
         bar.setIndeterminate(true); bar.setIndeterminateTintList(ColorStateList.valueOf(ui.accent));
-        bar.setContentDescription("Waiting for scooter confirmation");
+        bar.setContentDescription("Esperando confirmación del patinete");
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ui.dp(20), ui.dp(20)); lp.leftMargin = ui.dp(10);
         r.view.addView(bar, r.view.indexOfChild(r.toggle), lp);
         bar.setVisibility(View.GONE);
@@ -1315,10 +1315,10 @@ public final class MoreScreen implements AppScreen {
         animator.setDuration(320); animator.start();
     }
     private void setPin() {
-        if (!ownerReady()) { host.toast("Connect as the scooter owner before changing its PIN."); return; }
-        LinearLayout box = dialogBox("Set handlebar PIN", "Your phone-free fallback. Keep it safe. Digits are never shown or exported.");
+        if (!ownerReady()) { host.toast("Conéctate como propietario del patinete antes de cambiar el PIN."); return; }
+        LinearLayout box = dialogBox("Establecer PIN del manillar", "Tu alternativa sin teléfono. Mantenlo seguro. Los dígitos nunca se muestran ni se exportan.");
         LinearLayout header = row(); header.setPadding(0, ui.dp(8), 0, ui.dp(8));
-        TextView stepLabel = ui.text("Enter a new PIN", 13.5f, true); stepLabel.setTypeface(ui.semibold());
+        TextView stepLabel = ui.text("Introduce un nuevo PIN", 13.5f, true); stepLabel.setTypeface(ui.semibold());
         stepLabel.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         header.addView(stepLabel, new LinearLayout.LayoutParams(0, -2, 1));
         View[] dashes = new View[2];
@@ -1345,7 +1345,7 @@ public final class MoreScreen implements AppScreen {
         field.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
         field.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         field.setTextColor(Color.TRANSPARENT); field.setHintTextColor(Color.TRANSPARENT); field.setHighlightColor(Color.TRANSPARENT);
-        field.setHint("Enter a new PIN, four digits"); field.setBackground(null); field.setPadding(0, 0, 0, 0);
+        field.setHint("Introduce un nuevo PIN de 4 dígitos"); field.setBackground(null); field.setPadding(0, 0, 0, 0);
         field.setCursorVisible(false); field.setLongClickable(false); field.setSaveEnabled(false);
         field.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
         ActionMode.Callback noMenu = new ActionMode.Callback() {
@@ -1363,7 +1363,7 @@ public final class MoreScreen implements AppScreen {
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).create();
         final char[][] first = {null};
         final int[] step = {1};
-        final TextView[] buttons = dialogButtons(box, "Cancel", dialog::dismiss, "Next", null);
+        final TextView[] buttons = dialogButtons(box, "Cancelar", dialog::dismiss, "Siguiente", null);
         TextView next = buttons[1];
         Runnable update = () -> {
             int filled = field.length(); boolean focused = field.hasFocus();
@@ -1373,9 +1373,9 @@ public final class MoreScreen implements AppScreen {
         Runnable stepOne = () -> {
             if (first[0] != null) Arrays.fill(first[0], '\0');
             first[0] = null; step[0] = 1; field.setText("");
-            stepLabel.setText("Enter a new PIN"); stepLabel.setContentDescription("Step 1 of 2. Enter a new PIN");
-            field.setHint("Enter a new PIN, four digits");
-            next.setText("Next"); next.setContentDescription("Next");
+            stepLabel.setText("Introduce un nuevo PIN"); stepLabel.setContentDescription("Paso 1 de 2. Introduce un nuevo PIN");
+            field.setHint("Introduce un nuevo PIN de 4 dígitos");
+            next.setText("Siguiente"); next.setContentDescription("Siguiente");
             dashes[0].setBackground(ui.shape(ui.accent, 2, 0)); dashes[1].setBackground(ui.shape(ui.raised, 2, 0));
             update.run();
         };
@@ -1385,7 +1385,7 @@ public final class MoreScreen implements AppScreen {
             if (step[0] == 1) {
                 first[0] = new char[4]; typed.getChars(0, 4, first[0], 0);
                 step[0] = 2; field.setText(""); error.setText("");
-                stepLabel.setText("Repeat PIN"); stepLabel.setContentDescription("Step 2 of 2. Repeat PIN");
+                stepLabel.setText("Repetir PIN"); stepLabel.setContentDescription("Paso 2 de 2. Repite el PIN");
                 field.setHint("Repeat PIN, four digits");
                 next.setText("Set PIN"); next.setContentDescription("Set PIN");
                 dashes[1].setBackground(ui.shape(ui.accent, 2, 0));
@@ -1424,7 +1424,7 @@ public final class MoreScreen implements AppScreen {
         field.requestFocus();
     }
     private void pinGuide() {
-        LinearLayout box = dialogBox("Unlock without phone", "Scooter parked and locked.");
+        LinearLayout box = dialogBox("Desbloquear sin teléfono", "Scooter parked and locked.");
         box.addView(new HandlebarDiagram(), new LinearLayout.LayoutParams(-1, ui.dp(116)));
         String[] steps = {"Tap turn signal", "Set digit, squeeze brake", "Press power"};
         for (int i = 0; i < steps.length; i++) {
@@ -1515,7 +1515,7 @@ public final class MoreScreen implements AppScreen {
         labList = column(); cardDestination.addView(labList, new LinearLayout.LayoutParams(-1, -2));
         labFoot = footnote("");
         LinearLayout tools = group();
-        row(tools, "stats", "Command evidence", null, this::commandEvidence).view.setTag("lab-evidence");
+        row(tools, "stats", "Evidencia de comandos", null, this::commandEvidence).view.setTag("lab-evidence");
         dangerRow(tools, "Clear try results", this::clearTries).view.setTag("lab-clear");
     }
     /** The owner clears this scooter's finished tries: their results, report entries and Set back. Unfinished ones stay. */
@@ -1640,7 +1640,7 @@ public final class MoreScreen implements AppScreen {
     }
     /** Red action pill (Try / Set back); grey while unavailable. The touch target stays 48dp tall. */
     private TextView actionPill() {
-        TextView pill = ui.text("Try", 13, true); pill.setTypeface(ui.semibold());
+        TextView pill = ui.text("Probar", 13, true); pill.setTypeface(ui.semibold());
         pill.setGravity(Gravity.CENTER); pill.setMinHeight(ui.dp(48)); pill.setMinWidth(ui.dp(64)); pill.setMaxLines(1);
         pill.setTextColor(new ColorStateList(new int[][] {new int[] {-android.R.attr.state_enabled}, new int[] {}}, new int[] {ui.dim, ui.onAccent}));
         StateListDrawable fill = new StateListDrawable();
@@ -1663,7 +1663,7 @@ public final class MoreScreen implements AppScreen {
         row.now.setText(text); row.now.setVisibility(text.isEmpty() ? View.GONE : View.VISIBLE);
         // Ride-blocked stays tappable so the tap can say why; the write gate still refuses it.
         boolean usable = review || (d.available() || d.blockedByRide()) && ble.pending() == null;
-        row.action.setText(review ? "Review" : back ? "Set back" : "Try"); row.action.setEnabled(usable); row.action.setClickable(usable);
+        row.action.setText(review ? "Review" : back ? "Set back" : "Probar"); row.action.setEnabled(usable); row.action.setClickable(usable);
         row.action.setContentDescription(review ? "Review the unfinished " + row.feature.label.toLowerCase(Locale.ROOT) + " try"
                 : back ? "Set " + row.feature.label.toLowerCase(Locale.ROOT) + " back to " + labValue(row.feature, d, before)
                 : "Try " + row.feature.label.toLowerCase(Locale.ROOT));
@@ -1676,16 +1676,16 @@ public final class MoreScreen implements AppScreen {
             CapabilityResolver.Reason.RECORDING);
     private static String labHeld(CapabilityResolver.Reason reason) {
         switch (reason) {
-            case NOT_CONNECTED: return "Connect to try these.";
-            case STATUS_STALE: return "Waiting for fresh scooter status.";
-            case MOVING: return "Stop the scooter to try these.";
-            case NO_MOTION_REPORT: return "Waiting for the scooter to report that it's parked.";
-            case WARNING_ACTIVE: return "Resolve the scooter's warning to try these.";
-            case LOCKED: return "Unlock the scooter to try these.";
-            case OWNER_ONLY: return "Only the owner's profile can try these.";
-            case DISCOVERY_ACTIVE: return "Wait for the compatibility check to finish.";
-            case TEST_ACTIVE: return "Finish the current try first.";
-            case RECORDING: return "Stop recording to try these.";
+            case NOT_CONNECTED: return "Conéctate para probar estos ajustes.";
+            case STATUS_STALE: return "Esperando estado actualizado del patinete.";
+            case MOVING: return "Detén el patinete para probar estos ajustes.";
+            case NO_MOTION_REPORT: return "Esperando a que el patinete indique que está aparcado.";
+            case WARNING_ACTIVE: return "Resuelve la advertencia del patinete para probar estos ajustes.";
+            case LOCKED: return "Desbloquea el patinete para probar estos ajustes.";
+            case OWNER_ONLY: return "Solo el perfil del propietario puede probar estos ajustes.";
+            case DISCOVERY_ACTIVE: return "Espera a que finalice la comprobación de compatibilidad.";
+            case TEST_ACTIVE: return "Finaliza la prueba actual primero.";
+            case RECORDING: return "Detén la grabación para probar estos ajustes.";
             default: return CapabilityResolver.text(reason);
         }
     }
@@ -1888,7 +1888,7 @@ public final class MoreScreen implements AppScreen {
             warn.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE); controls.addView(warn);
             reason = ui.text("", 13.5f, false); reason.setTextColor(ui.danger); reason.setPadding(ui.dp(4), ui.dp(4), ui.dp(4), 0);
             reason.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE); controls.addView(reason);
-            go = ui.button("Try", this::send); go.setTag("lab-try-button"); controls.addView(go);
+            go = ui.button("Probar", this::send); go.setTag("lab-try-button"); controls.addView(go);
             back = ui.secondaryButton("Set back", this::setBack); back.setTag("lab-back-button"); controls.addView(back);
             TextView note = ui.caption("Volt sends one change while the scooter is parked and unlocked, reads it back, then asks what you saw. The value stays until you set it back. If the connection drops, Volt never writes again by itself: the try waits for your review.");
             note.setPadding(ui.dp(4), ui.dp(8), ui.dp(4), 0); body.addView(note);
@@ -1975,7 +1975,7 @@ public final class MoreScreen implements AppScreen {
             TestJournal.Entry last = ble.simulating() || live != null ? null : ble.latestTry(feature.key);
             boolean refused = last != null && last.resolved && "refused".equals(CompatibilityReport.tryResult(last));
             refusedNote.setVisibility(refused && !held ? View.VISIBLE : View.GONE);
-            go.setText(selected == null ? (refused ? "Try again" : "Try") : current != null && selected.equals(current) ? "Already " + labValue(feature, d, selected)
+            go.setText(selected == null ? (refused ? "Intentar de nuevo" : "Probar") : current != null && selected.equals(current) ? "Already " + labValue(feature, d, selected)
                     : (refused ? "Try again: " : "Try ") + labValue(feature, d, selected));
             go.setContentDescription(go.getText()); go.setEnabled(d.available() && !busy && change);
             String caution = change ? ModelRegistry.experimentalCaution(feature.key, selected) : null;
@@ -1986,7 +1986,7 @@ public final class MoreScreen implements AppScreen {
             // After a try, Set back is the one action unless another value is chosen.
             go.setVisibility(showBack && (selected == null || selected.equals(current) || selected.equals(before)) ? View.GONE : View.VISIBLE);
             back.setVisibility(showBack ? View.VISIBLE : View.GONE);
-            if (showBack) { back.setText("Set back to " + labValue(feature, d, before)); back.setContentDescription(back.getText()); }
+            if (showBack) { back.setText("Restablecer a " + labValue(feature, d, before)); back.setContentDescription(back.getText()); }
             back.setEnabled(d.available() && !busy);
         }
         void answer(Boolean saw) {
@@ -2004,23 +2004,23 @@ public final class MoreScreen implements AppScreen {
                 : "The official app doesn't offer this on your model.") + " It may do nothing here, or work differently.";
     }
     private void commandEvidence() {
-        LinearLayout box = dialogBox("Command evidence", "PIN and auth bytes hidden");
+        LinearLayout box = dialogBox("Evidencia de comandos", "Bytes de autenticación y PIN ocultos");
         Map<String,String> results = service().ble.commandResults();
-        if (results.isEmpty()) note(box, "No changes yet");
+        if (results.isEmpty()) note(box, "Sin cambios todavía");
         for (Map.Entry<String,String> e : results.entrySet()) {
-            if (e.getKey().equals("clock_sync")) { note(box, "Local clock sync\n" + e.getValue()); continue; }
+            if (e.getKey().equals("clock_sync")) { note(box, "Sincronización de reloj local\n" + e.getValue()); continue; }
             ScooterCommands.Feature feature;
             try { feature = ScooterCommands.find(e.getKey()); } catch (IllegalArgumentException ignored) { continue; }
             note(box, feature.label + "\n" + e.getValue());
         }
         List<String> events = service().ble.events();
-        TextView heading = ui.text("Connection activity", 16, true); heading.setPadding(0, ui.dp(14), 0, ui.dp(4)); box.addView(heading);
+        TextView heading = ui.text("Actividad de conexión", 16, true); heading.setPadding(0, ui.dp(14), 0, ui.dp(4)); box.addView(heading);
         StringBuilder lines = new StringBuilder();
         for (int i = Math.max(0, events.size() - 35); i < events.size(); i++) lines.append(events.get(i)).append('\n');
-        TextView activity = ui.caption(lines.length() == 0 ? "No connection activity yet." : lines.toString());
+        TextView activity = ui.caption(lines.length() == 0 ? "Sin actividad de conexión todavía." : lines.toString());
         activity.setTextIsSelectable(true); box.addView(activity);
         ScrollView inner = new ScrollView(host.activity()); inner.addView(box);
-        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Close", null).create(); show(dialog);
+        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Cerrar", null).create(); show(dialog);
     }
 
     // ---- About & permissions ------------------------------------------------------------
@@ -2050,7 +2050,7 @@ public final class MoreScreen implements AppScreen {
         Row online = row(maps, "map", "Online map", null, this::mapSettings);
         valueRefreshers.add(() -> online.value(basemapSummary()));
         LinearLayout more = group();
-        row(more, "stats", "Connection activity", null, this::commandEvidence);
+        row(more, "stats", "Actividad de conexión", null, this::commandEvidence);
         row(more, "copy", "Licenses & attribution", null, this::licenses);
         row(more, "bluetooth", "Connect selected scooter", null, host::connect);
     }
@@ -2063,7 +2063,7 @@ public final class MoreScreen implements AppScreen {
         LinearLayout box = dialogBox("Check GitHub for updates?",
                 "Volt asks GitHub for its latest release. GitHub sees your IP address and your Volt version; nothing else is sent. Volt never downloads or installs anything itself.");
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).create();
-        dialogButtons(box, "Cancel", dialog::dismiss, "Check", () -> {
+        dialogButtons(box, "Cancelar", dialog::dismiss, "Check", () -> {
             settings.edit().putBoolean(UpdateCheck.CONSENT, true).apply(); dialog.dismiss(); runUpdateCheck();
         });
         show(dialog);
@@ -2071,7 +2071,7 @@ public final class MoreScreen implements AppScreen {
     private void runUpdateCheck() {
         String installed = AppVersion.name(host.activity());
         LinearLayout box = dialogBox("Checking for updates", "Asking GitHub for the latest release…");
-        AlertDialog checking = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancel", null).create();
+        AlertDialog checking = new AlertDialog.Builder(host.activity()).setView(box).setNegativeButton("Cancelar", null).create();
         show(checking);
         Thread worker = new Thread(() -> {
             UpdateCheck.Result result;
@@ -2104,7 +2104,7 @@ public final class MoreScreen implements AppScreen {
         ScrollView inner = new ScrollView(host.activity()); inner.addView(box);
         AlertDialog dialog = builder.setView(inner).create();
         if (r != null && r.outcome == UpdateCheck.Outcome.AVAILABLE)
-            dialogButtons(box, "Close", dialog::dismiss, "Open release page", () -> { dialog.dismiss(); openReleasePage(r.url); });
+            dialogButtons(box, "Cerrar", dialog::dismiss, "Open release page", () -> { dialog.dismiss(); openReleasePage(r.url); });
         else dialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK", (d, which) -> d.dismiss());
         show(dialog);
     }
@@ -2191,7 +2191,7 @@ public final class MoreScreen implements AppScreen {
         chargeCurve.addView(chargeCurveScope);
         cardDestination.addView(chargeCurve);
         LinearLayout capture=group();
-        chargeCaptureRow=row(capture,"battery","Record this charge",null,()->{
+        chargeCaptureRow=row(capture,"battery","Registrar esta carga",null,()->{
             ScooterService s=service();if(s==null)return;
             if(s.isChargeRecording()){s.stopChargeRecording();refreshDeveloper();return;}
             String unavailable=s.chargeCaptureUnavailable();if(unavailable!=null){host.toast(unavailable);return;}
@@ -2199,23 +2199,23 @@ public final class MoreScreen implements AppScreen {
         });chargeCaptureRow.view.setTag("charge-capture-action");
         chargeCaptureStatus=footnote("");chargeCaptureStatus.setTag("charge-capture-status");
         LinearLayout chargeData=group();
-        chargeHistoryRow=row(chargeData,"chart","Charge recordings", "Saved estimates & finish times",()->{
+        chargeHistoryRow=row(chargeData,"chart","Registros de carga", "Estimaciones guardadas y horas de fin",()->{
             if(chargeHistoryDialog!=null)chargeHistoryDialog.close();
             chargeHistoryDialog=new ChargeHistoryDialog(host);chargeHistoryDialog.show();
         });chargeHistoryRow.view.setTag("charge-history-action");
-        exportChargeRow=row(chargeData,"download","Export charge recordings", "JSON · this scooter",()->{
+        exportChargeRow=row(chargeData,"download","Exportar registros de carga", "JSON · este patinete",()->{
             ScooterService s=service();if(s==null)return;
             if(!s.exportChargeRecordings(file->{
                 if(closed||host.activity().isDestroyed())return;
                 if(file==null){host.toast(s.chargeCaptureStatus());return;}
                 host.saveFile("charge-recordings.json","application/json",file);
-            }))host.toast("Stop charge recording before exporting, or wait for the current export");
+            }))host.toast("Detén el registro de carga antes de exportar, o espera a la exportación actual");
         });exportChargeRow.view.setTag("charge-export-action");
-        clearChargeRow=row(chargeData,"trash","Clear this scooter's charge recordings",null,()->{
+        clearChargeRow=row(chargeData,"trash","Borrar registros de carga de este patinete",null,()->{
             ScooterService s=service();if(s==null||s.isChargeRecording())return;
-            AlertDialog dialog=new AlertDialog.Builder(host.activity()).setTitle("Clear charge recordings?")
-                    .setMessage("Removes charges and learned curves. Rides stay.")
-                    .setNegativeButton("Cancel",null).setPositiveButton("Clear recordings",(d,which)->s.clearChargeRecordings(this::refreshDeveloper)).create();show(dialog);
+            AlertDialog dialog=new AlertDialog.Builder(host.activity()).setTitle("¿Borrar registros de carga?")
+                    .setMessage("Elimina las cargas y las curvas aprendidas. Los viajes se mantienen.")
+                    .setNegativeButton("Cancelar",null).setPositiveButton("Clear recordings",(d,which)->s.clearChargeRecordings(this::refreshDeveloper)).create();show(dialog);
         });clearChargeRow.view.setTag("charge-clear-action");
         label("Test layouts");
         LinearLayout backups = group();
@@ -2251,7 +2251,7 @@ public final class MoreScreen implements AppScreen {
                     if (closed || current == null || !developerEnabled()) return;
                     current.ble.setSimulationModel(SIMULATION_MODELS[which]); d.dismiss();
                     refreshDeveloper(); host.redraw();
-                }).setNegativeButton("Close", null).create(); show(dialog);
+                }).setNegativeButton("Cerrar", null).create(); show(dialog);
     }
 
     private void refreshDeveloper() {
@@ -2275,7 +2275,7 @@ public final class MoreScreen implements AppScreen {
             chargeChargerSelector.select(selected==null?0:selected==ChargeSessionStore.Charger.STOCK?1:2,false);
             boolean capturing=s!=null&&s.isChargeRecording();
             String unavailable=s==null?"Connect your scooter first":s.chargeCaptureUnavailable();
-            chargeCaptureRow.title.setText(capturing?"Stop charge recording":"Record this charge");
+            chargeCaptureRow.title.setText(capturing?"Stop charge recording":"Registrar esta carga");
             chargeCaptureRow.enabled(enabled&&s!=null&&(capturing||unavailable==null));
             chargeCaptureStatus.setText(capturing||unavailable==null?s.chargeCaptureStatus():unavailable);
             refreshChargeCurve(s);
@@ -2318,7 +2318,7 @@ public final class MoreScreen implements AppScreen {
         LinearLayout.LayoutParams pp = new LinearLayout.LayoutParams(-1, -2); pp.topMargin = ui.dp(6); pp.bottomMargin = ui.dp(6);
         box.addView(picker, pp);
         AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(box).create();
-        start[0] = dialogButtons(box, "Cancel", dialog::dismiss, "Start recording", () -> {
+        start[0] = dialogButtons(box, "Cancelar", dialog::dismiss, "Start recording", () -> {
             if (selected[0] == null) return;
             dialog.dismiss();
             ScooterProfiles.Profile current = active();
@@ -2362,7 +2362,7 @@ public final class MoreScreen implements AppScreen {
         LinearLayout notices = ui.groupCard(); notices.setBackground(null); notices.setPadding(0, 0, 0, 0); box.addView(notices);
         row(notices, "copy", "View full notices", null, this::fullNotices);
         ScrollView inner = new ScrollView(host.activity()); inner.addView(box);
-        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Close", null).create(); show(dialog);
+        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Cerrar", null).create(); show(dialog);
     }
     /** The licence texts bundled in the APK assets, shown as they ship. */
     private void fullNotices() {
@@ -2386,7 +2386,7 @@ public final class MoreScreen implements AppScreen {
             }
         } catch (java.io.IOException unreadable) { note(box, "Notices could not be read."); }
         ScrollView inner = new ScrollView(host.activity()); inner.addView(box);
-        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Close", null).create(); show(dialog);
+        AlertDialog dialog = new AlertDialog.Builder(host.activity()).setView(inner).setPositiveButton("Cerrar", null).create(); show(dialog);
     }
     private boolean granted(String permission) {
         return host.activity().checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
@@ -2429,7 +2429,7 @@ public final class MoreScreen implements AppScreen {
             boolean connected = selected && s.ble.ready();
             boolean connecting = selected && state != BleController.State.DISCONNECTED && !connected;
             card.name.setText(item.name);
-            String detail = connected ? "Connected" : connecting ? "Connecting…" : "Offline";
+            String detail = connected ? "Connected" : connecting ? "Connecting…" : "Sin conexión";
             card.stateLine.setVisibility(selected ? View.VISIBLE : View.GONE);
             card.status.setText(detail); card.status.setTextColor(ui.muted);
             DeviceDescriptor descriptor = item.savedDescriptor();
@@ -2437,15 +2437,15 @@ public final class MoreScreen implements AppScreen {
             card.photo.setVisibility(hasPhoto ? View.VISIBLE : View.GONE);
             card.photoFallback.setVisibility(hasPhoto ? View.GONE : View.VISIBLE);
             String model = ModelRegistry.modelName(descriptor);
-            if (model.isEmpty()) model = "Model not identified";
-            if (item.role == 1) model += " · Shared access";
+            if (model.isEmpty()) model = "Modelo no identificado";
+            if (item.role == 1) model += " · Acceso compartido";
             card.model.setText(model);
             card.lastSeen.setVisibility(item.lastConnected > 0 && !connected ? View.VISIBLE : View.GONE);
             if (item.lastConnected > 0) card.lastSeen.setText("Last connected " + DateUtils.getRelativeTimeSpanString(
                     item.lastConnected, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
             card.card.setBackground(ui.shape(ui.surface, 22, ui.outline));
-            card.edit.setContentDescription("Edit " + item.name); card.edit.setTooltipText("Edit scooter");
-            String action = connected ? "Disconnect" : connecting ? "Cancel" : "Connect";
+            card.edit.setContentDescription("Edit " + item.name); card.edit.setTooltipText("Editar patinete");
+            String action = connected ? "Disconnect" : connecting ? "Cancelar" : "Connect";
             card.connect.setText(action); card.connect.setContentDescription(action + " " + item.name);
             card.connect.setVisibility(selected ? View.VISIBLE : View.GONE);
             card.use.setVisibility(selected ? View.GONE : View.VISIBLE);
@@ -2455,16 +2455,16 @@ public final class MoreScreen implements AppScreen {
     }
     private void refreshPermissions(ScooterService s) {
         boolean nearby = s.ble.permissions();
-        permissionValue(nearbyRow, nearby ? "Allowed" : "Not allowed", nearby);
+        permissionValue(nearbyRow, nearby ? "Permitido" : "No permitido", nearby);
         boolean fine = granted(Manifest.permission.ACCESS_FINE_LOCATION), coarse = granted(Manifest.permission.ACCESS_COARSE_LOCATION);
-        permissionValue(locationRow, fine ? "Allowed" : coarse ? "Approximate" : "Not allowed", fine || coarse);
+        permissionValue(locationRow, fine ? "Permitido" : coarse ? "Aproximado" : "No permitido", fine || coarse);
         NotificationManager notifications = host.activity().getSystemService(NotificationManager.class);
         boolean notify = notifications != null && notifications.areNotificationsEnabled();
-        permissionValue(notificationRow, notify ? "Allowed" : "Off", notify);
+        permissionValue(notificationRow, notify ? "Permitido" : "Off", notify);
     }
     private CharSequence pinStatus(ScooterCommands.PinState pin) {
-        if (pin == null) return "Not read";
-        if (pin.status != 0) return "Rejected by scooter";
+        if (pin == null) return "No leído";
+        if (pin.status != 0) return "Rechazado por el patinete";
         if (!pin.configured) return "Not set";
         if (!Boolean.TRUE.equals(pin.enabled)) return "Disabled";
         SpannableString enabled = new SpannableString("Enabled");

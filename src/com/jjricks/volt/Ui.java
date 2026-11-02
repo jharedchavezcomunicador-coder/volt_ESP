@@ -619,7 +619,7 @@ public final class Ui {
     public class BatteryRing extends View {
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private double percent = Double.NaN;
-        private String subtitle = "Not reported";
+        private String subtitle = "No registrado";
         private boolean charging, live = true;
         public void setLive(boolean value) { live = value; describe(); invalidate(); }
         public BatteryRing() {
@@ -633,8 +633,8 @@ public final class Ui {
             describe(); invalidate();
         }
         private void describe() {
-            setContentDescription("Battery " + (Double.isNaN(percent) ? "not reported" : Math.round(percent) + " percent")
-                    + (charging ? ", charging" : "") + (live ? "" : ", last seen reading")
+            setContentDescription("Batería " + (Double.isNaN(percent) ? "no registrada" : Math.round(percent) + " por ciento")
+                    + (charging ? ", cargando" : "") + (live ? "" : ", última lectura vista")
                     + (subtitle.isEmpty() ? "" : ", " + subtitle));
         }
         public void set(Double percent, String subtitle, boolean charging) { set(percent == null ? Double.NaN : percent.doubleValue(), subtitle, charging); }
@@ -642,7 +642,7 @@ public final class Ui {
             setMeasuredDimension(resolveSize(dp(160), width), resolveSize(dp(176), height));
         }
         @Override protected void onDraw(Canvas canvas) {
-            String label = charging ? "Charging" + (subtitle.isEmpty() ? "" : " · " + subtitle) : subtitle;
+            String label = charging ? "Cargando" + (subtitle.isEmpty() ? "" : " · " + subtitle) : subtitle;
             float drawableHeight = Math.max(1, getHeight() - (label.isEmpty() ? 0 : dp(20)));
             float radius = Math.min(getWidth(), drawableHeight) / 2f - dp(13);
             if (radius <= 0) return;
@@ -707,7 +707,7 @@ public final class Ui {
         public static final int MAX_POINTS = 1600;
         private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final ArrayList<Point> points = new ArrayList<Point>();
-        private String unit = "", empty = "No measured data yet", axisMetric = "";
+        private String unit = "", empty = "Sin datos medidos aún", axisMetric = "";
         private boolean absoluteAxis;
         private ChartScale.Range range = ChartScale.range("", "", false, 0, 1);
         private int color = accent, selected = -1;

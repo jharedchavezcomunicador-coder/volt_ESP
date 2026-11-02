@@ -75,18 +75,18 @@ final class QuickAccessGrid extends ViewGroup {
             boolean unreadable = !unmapped && value != null && decision != null && feature.type == ScooterCommands.Type.CHOICE && !offers(decision, value);
             if (unreadable) value = null;
             String state = feature == null || feature.sensitive && !unmapped ? ""
-                    : unmapped ? "—" : pending ? "Updating…" : value == null ? "—"
+                    : unmapped ? "—" : pending ? "Actualizando…" : value == null ? "—"
                     : decision != null && decision.oemLabel(value) != null ? decision.oemLabel(value)
                     : DisplayUnits.featureValue(feature, value, units);
             if (feature != null && feature.key.equals("range_algorithm")) {
                 featureLive = service != null && service.profiles.active() != null;
-                state = featureLive && service.usesLearnedRange() ? "Volt (learned)" : "Scooter";
+                state = featureLive && service.usesLearnedRange() ? "Volt (aprendido)" : "Scooter";
             }
-            String chargeBlocked = charge == null ? (doneTime ? "Select a scooter first" : "Connect a charger first") : doneTime ? charge.timeBlockedReason
+            String chargeBlocked = charge == null ? (doneTime ? "Selecciona un patinete primero" : "Conecta un cargador primero") : doneTime ? charge.timeBlockedReason
                     : doneBy ? charge.doneByBlockedReason : startTime ? charge.manualTimeBlockedReason : charge.manualBlockedReason;
             // An armed plan deliberately pauses charging; its own off action remains available.
             if (doneBy && charge != null && charge.doneByEnabled)
-                chargeBlocked = !live ? "Connect your scooter first" : charge.busy ? "Wait for the current change to finish" : null;
+                chargeBlocked = !live ? "Conecta tu patinete primero" : charge.busy ? "Espera a que termine el cambio actual" : null;
             // A measuring window opens its own Keep / Schedule now / Stop choice.
             boolean measuring = doneBy && service != null && service.isChargeMeasuring();
             if (measuring) chargeBlocked = null;
@@ -101,9 +101,9 @@ final class QuickAccessGrid extends ViewGroup {
                     String time = DisplayTime.clock(host.activity(), preferences, deadline.getTimeInMillis());
                     String activeTime = charge.doneByWallMs > 0
                             ? DisplayTime.clock(host.activity(), preferences, charge.doneByWallMs) : time;
-                    state = pending ? "Updating…" : doneTime ? time : measuring ? "Measuring" : charge.doneByEnabled ? "On • " + activeTime : "Off";
-                } else if (manual) state = pending ? "Updating…" : charge.manualEnabled ? "On" : "Off";
-                else state = charge.manualStartWallMs > 0 ? DisplayTime.clock(host.activity(), preferences, charge.manualStartWallMs) : "Not scheduled";
+                    state = pending ? "Actualizando…" : doneTime ? time : measuring ? "Measuring" : charge.doneByEnabled ? "On • " + activeTime : "Off";
+                } else if (manual) state = pending ? "Actualizando…" : charge.manualEnabled ? "On" : "Off";
+                else state = charge.manualStartWallMs > 0 ? DisplayTime.clock(host.activity(), preferences, charge.manualStartWallMs) : "No programado";
             } else if (doneBy || doneTime) state = "—";
             if (manual && !unmapped && charge != null && charge.manualEnabled && charge.startWallMs > 0 && !pending)
                 state += " • " + DisplayTime.clock(host.activity(), preferences, charge.startWallMs);
@@ -144,7 +144,7 @@ final class QuickAccessGrid extends ViewGroup {
             }
             cell.setEnabled(!editing);
             String description = (tiles ? tileLabel(cell.entry) : cell.entry.label) + (state.isEmpty() ? "" : ", " + state)
-                    + (unmapped ? ", not on this model" : unreadable ? ", unreadable value" : chargeControl && chargeBlocked != null ? ", " + chargeBlocked
+                    + (unmapped ? ", no en este modelo" : unreadable ? ", valor ilegible" : chargeControl && chargeBlocked != null ? ", " + chargeBlocked
                             : feature != null && !featureLive ? ", last seen" : "")
                     + (toggle ? ", toggle" : ", open");
             cell.setContentDescription(description);
@@ -422,10 +422,10 @@ final class QuickAccessGrid extends ViewGroup {
         for (int choice : choices) if (choice == value) return true;
         return false;
     }
-    /** Setting tiles use short names: the Scooter page's "Top speed", and "Charge schedule". */
+    /** Setting tiles use short names: the Scooter page's "Velocidad máx.", and "Horario de carga". */
     private static String tileLabel(QuickAccessActions.Entry entry) {
-        if ("feature:maximum_speed".equals(entry.id)) return "Top speed";
-        if ("feature:timed_charging".equals(entry.id)) return "Charge schedule";
+        if ("feature:maximum_speed".equals(entry.id)) return "Velocidad máx.";
+        if ("feature:timed_charging".equals(entry.id)) return "Horario de carga";
         return entry.label;
     }
 }

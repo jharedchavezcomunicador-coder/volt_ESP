@@ -58,9 +58,9 @@ public final class ShizukuSetupActivity extends Activity {
     }
     @Override public void onBackPressed() {
         if (capture.busy) {
-            new AlertDialog.Builder(this).setTitle("Stop setup?")
-                    .setMessage("Wait here until NAVEE is restored.")
-                    .setNegativeButton("Keep waiting", null).setPositiveButton("Stop setup", (d, w) -> capture.cancel()).show();
+            new AlertDialog.Builder(this).setTitle("¿Detener configuración?")
+                    .setMessage("Espera aquí hasta que se restaure NAVEE.")
+                    .setNegativeButton("Seguir esperando", null).setPositiveButton("Detener configuración", (d, w) -> capture.cancel()).show();
         } else super.onBackPressed();
     }
     private void render() {
@@ -76,21 +76,21 @@ public final class ShizukuSetupActivity extends Activity {
             return insets;
         });
         setContentView(scroll); scroll.requestApplyInsets();
-        text("Phone-only setup", 28, true);
+        text("Configuración solo con el móvil", 28, true);
         if (android.os.Process.myUid() >= 100000) {
-            text("Main Android profile only.", 16, false);
-            button("Import backup", () -> { setResult(RESULT_IMPORT_BACKUP); finish(); });
-            button("Back to setup choices", this::finish); return;
+            text("Solo disponible en el perfil principal de Android.", 16, false);
+            button("Importar copia de seguridad", () -> { setResult(RESULT_IMPORT_BACKUP); finish(); });
+            button("Volver a opciones de configuración", this::finish); return;
         }
         if (Build.VERSION.SDK_INT < 30) {
             // Setup disables this path below Android 11; kept only as a guard.
-            text("Needs Android 11 or newer.", 16, false);
-            button("Back to setup choices", this::finish); return;
+            text("Requiere Android 11 o superior.", 16, false);
+            button("Volver a opciones de configuración", this::finish); return;
         }
         if (capture.busy) {
             boolean connecting = capture.phase == OwnerCaptureEngine.CONNECT_NAVEE;
-            String title = connecting ? "Connect your scooter in NAVEE"
-                    : capture.phase == OwnerCaptureEngine.CLEANING ? "Restoring NAVEE logging…" : "Preparing capture…";
+            String title = connecting ? "Conecta tu patinete en NAVEE"
+                    : capture.phase == OwnerCaptureEngine.CLEANING ? "Restaurando registro de NAVEE…" : "Preparando captura…";
             text(title, 22, true);
             if (connecting && capture.captureSinceMs > 0) {
                 Countdown ring = new Countdown(capture.captureSinceMs);
@@ -98,72 +98,72 @@ public final class ShizukuSetupActivity extends Activity {
                 rp.gravity = Gravity.CENTER_HORIZONTAL; rp.bottomMargin = ui.dp(18);
                 content.addView(ring, rp);
             }
-            text(connecting ? "Connect in NAVEE, then return." : "Keep Shizuku running.", 16, false);
-            button("Cancel capture", capture::cancel); return;
+            text(connecting ? "Conecta en NAVEE y regresa." : "Mantén Shizuku en ejecución.", 16, false);
+            button("Cancelar captura", capture::cancel); return;
         }
         if (capture.pendingCleanup()) {
-            text("Finish cleanup first", 22, true);
-            text("NAVEE logging may still be on.", 16, false);
+            text("Termina la limpieza primero", 22, true);
+            text("El registro de NAVEE aún puede estar activo.", 16, false);
             status(); setupLinks();
             if (!capture.permitted()) permissionButton();
-            else button("Restore NAVEE logging", () -> capture.start(true));
-            button("Back", this::finish); return;
+            else button("Restaurar registro de NAVEE", () -> capture.start(true));
+            button("Atrás", this::finish); return;
         }
         if (capture.owner != null) {
-            text("Ready to import", 22, true);
+            text("Listo para importar", 22, true);
             LinearLayout checks = group();
-            checkRow(checks, capture.owner.role == 1 ? "Shared-user identity found" : "Owner identity found", true);
-            checkRow(checks, "NAVEE restored", false);
-            button("Import owner setup", () -> {
+            checkRow(checks, capture.owner.role == 1 ? "Identidad de usuario compartido encontrada" : "Identidad de propietario encontrada", true);
+            checkRow(checks, "NAVEE restaurado", false);
+            button("Importar configuración del propietario", () -> {
                 if (capture.approveImport()) { setResult(RESULT_OK); finish(); }
             });
-            button("Discard", capture::discard);
+            button("Descartar", capture::discard);
             return;
         }
         if (!capture.available()) {
             steps(1);
-            text("Start Shizuku", 22, true);
+            text("Iniciar Shizuku", 22, true);
             status();
             boolean installed = shizukuInstalled(), running = installed && capture.running();
             LinearLayout checks = group();
-            stateRow(checks, "Shizuku installed", null, installed, "Install", () -> open("https://shizuku.rikka.app/download/"), true);
-            stateRow(checks, "Shizuku running", running ? capture.unavailableReason() : null, false,
-                    "Open", this::openShizuku, false);
-            button("Shizuku setup guide", () -> open("https://shizuku.rikka.app/guide/setup/"));
-            button("Back to setup choices", this::finish); return;
+            stateRow(checks, "Shizuku instalado", null, installed, "Instalar", () -> open("https://shizuku.rikka.app/download/"), true);
+            stateRow(checks, "Shizuku en ejecución", running ? capture.unavailableReason() : null, false,
+                    "Abrir", this::openShizuku, false);
+            button("Guía de instalación de Shizuku", () -> open("https://shizuku.rikka.app/guide/setup/"));
+            button("Volver a opciones de configuración", this::finish); return;
         }
         if (!capture.permitted()) {
             steps(2);
-            text("Allow temporary access", 22, true);
+            text("Permitir acceso temporal", 22, true);
             status();
-            text("Grants broad debugging access. Used only here. Nothing uploaded.", 16, false);
+            text("Otorga acceso amplio de depuración. Solo se usa aquí. No se sube nada a internet.", 16, false);
             if (capture.allowInShizuku) {
-                TextView openShizuku = button("Open Shizuku", this::openShizuku);
-                openShizuku.setContentDescription("Open Shizuku to allow Volt");
+                TextView openShizuku = button("Abrir Shizuku", this::openShizuku);
+                openShizuku.setContentDescription("Abrir Shizuku para autorizar a Volt");
             } else permissionButton();
-            button("Shizuku help", () -> open("https://shizuku.rikka.app/guide/setup/"));
-            button("Back to setup choices", this::finish); return;
+            button("Ayuda de Shizuku", () -> open("https://shizuku.rikka.app/guide/setup/"));
+            button("Volver a opciones de configuración", this::finish); return;
         }
         steps(3);
-        text("Capture from your scooter", 22, true);
+        text("Capturar desde tu patinete", 22, true);
         status();
-        text("Connect to your parked scooter in NAVEE first.", 16, false);
-        text("Capture restarts NAVEE and temporarily enables logging. Keep Shizuku running until cleanup finishes.", 15, false);
-        CheckBox agree = new CheckBox(this); agree.setText("I own this scooter or have permission.");
+        text("Conéctate primero a tu patinete estacionado en NAVEE.", 16, false);
+        text("La captura reinicia NAVEE y activa temporalmente el registro. Mantén Shizuku en ejecución hasta finalizar la limpieza.", 15, false);
+        CheckBox agree = new CheckBox(this); agree.setText("Soy el propietario de este patinete o tengo permiso.");
         agree.setTextColor(ui.text); agree.setTextSize(15 * ui.textScale); agree.setChecked(consent);
         agree.setPadding(0, ui.dp(12), 0, ui.dp(12)); agree.setMinHeight(ui.dp(48)); content.addView(agree);
-        TextView start = button("Start capture", () -> { if (consent) { consent = false; capture.start(false); } });
+        TextView start = button("Iniciar captura", () -> { if (consent) { consent = false; capture.start(false); } });
         start.setEnabled(consent); start.setAlpha(consent ? 1f : .45f);
         agree.setOnCheckedChangeListener((view, checked) -> {
             consent = checked; start.setEnabled(checked); start.setAlpha(checked ? 1f : .45f);
         });
-        button("Back to setup choices", this::finish);
+        button("Volver a opciones de configuración", this::finish);
     }
 
     private void setupLinks() {
-        button("Shizuku setup guide", () -> open("https://shizuku.rikka.app/guide/setup/"));
-        button("Install Shizuku", () -> open("https://shizuku.rikka.app/download/"));
-        button("Open Shizuku", this::openShizuku);
+        button("Guía de instalación de Shizuku", () -> open("https://shizuku.rikka.app/guide/setup/"));
+        button("Instalar Shizuku", () -> open("https://shizuku.rikka.app/download/"));
+        button("Abrir Shizuku", this::openShizuku);
     }
     private void openShizuku() {
         Intent launch = getPackageManager().getLaunchIntentForPackage(SHIZUKU_PACKAGE);
@@ -174,15 +174,15 @@ public final class ShizukuSetupActivity extends Activity {
         catch (PackageManager.NameNotFoundException | RuntimeException missing) { return false; }
     }
     private void permissionButton() {
-        TextView grant = button(capture.available() ? "Allow Shizuku access" : "Check Shizuku connection", () -> {
+        TextView grant = button(capture.available() ? "Permitir acceso a Shizuku" : "Comprobar conexión con Shizuku", () -> {
             if (capture.available()) capture.requestPermission(); else { capture.message = capture.unavailableReason(); render(); }
         });
-        grant.setContentDescription(capture.available() ? "Request broad debugging access from Shizuku; does not start capture" : "Check whether Shizuku is running");
+        grant.setContentDescription(capture.available() ? "Solicitar acceso de depuración a Shizuku; no inicia la captura" : "Comprobar si Shizuku está en ejecución");
     }
     private void status() { if (!capture.message.isEmpty()) text(capture.message, 15, true); }
     private void open(String url) {
         try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
-        catch (RuntimeException ignored) { capture.message = "No browser found"; render(); }
+        catch (RuntimeException ignored) { capture.message = "No se encontró ningún navegador"; render(); }
     }
     private void text(String value, float size, boolean bold) {
         TextView view = ui.text(value, size, bold); view.setLineSpacing(ui.dp(3), 1);
@@ -219,7 +219,7 @@ public final class ShizukuSetupActivity extends Activity {
         TextView name = ui.text(label, 15.5f, false);
         row.addView(name, new LinearLayout.LayoutParams(0, -2, 1));
         row.addView(checkMark(), new LinearLayout.LayoutParams(ui.dp(28), ui.dp(28)));
-        row.setFocusable(true); row.setContentDescription(label + ", done");
+        row.setFocusable(true); row.setContentDescription(label + ", listo");
         parent.addView(row);
     }
     /** A live checklist row: a check when done, otherwise a small button that does the step. */
@@ -237,14 +237,14 @@ public final class ShizukuSetupActivity extends Activity {
         row.addView(words, wp);
         if (done) {
             row.addView(checkMark(), new LinearLayout.LayoutParams(ui.dp(28), ui.dp(28)));
-            row.setFocusable(true); row.setContentDescription(label + ", done");
+            row.setFocusable(true); row.setContentDescription(label + ", listo");
         } else {
             TextView go = ui.secondaryButton(action, run);
             go.setMinWidth(ui.dp(76)); go.setPadding(ui.dp(14), 0, ui.dp(14), 0);
             go.setContentDescription(action + " " + label.replace("Shizuku ", "Shizuku, ").toLowerCase(java.util.Locale.ROOT));
             row.addView(go, new LinearLayout.LayoutParams(-2, ui.dp(48)));
             words.setFocusable(true);
-            words.setContentDescription(label + ", not yet" + (problem == null || problem.isEmpty() ? "" : ". " + problem));
+            words.setContentDescription(label + ", aún no" + (problem == null || problem.isEmpty() ? "" : ". " + problem));
         }
         parent.addView(row);
     }
@@ -260,7 +260,7 @@ public final class ShizukuSetupActivity extends Activity {
         private final int current; private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         Steps(int current) {
             super(ShizukuSetupActivity.this); this.current = current;
-            setContentDescription("Step " + current + " of 3");
+            setContentDescription("Paso " + current + " de 3");
             setFocusable(true);
         }
         @Override protected void onDraw(Canvas canvas) {
@@ -302,7 +302,7 @@ public final class ShizukuSetupActivity extends Activity {
         @Override protected void onDetachedFromWindow() { removeCallbacks(tick); super.onDetachedFromWindow(); }
         @Override protected void onDraw(Canvas canvas) {
             int left = secondsLeft();
-            if (left != spoken) { spoken = left; setContentDescription(left + " seconds left"); }
+            if (left != spoken) { spoken = left; setContentDescription(left + " segundos restantes"); }
             float s = Math.min(getWidth(), getHeight()), stroke = ui.dp(8), cx = getWidth() / 2f, cy = getHeight() / 2f;
             RectF ring = new RectF(cx - s / 2 + stroke / 2, cy - s / 2 + stroke / 2, cx + s / 2 - stroke / 2, cy + s / 2 - stroke / 2);
             paint.setStyle(Paint.Style.STROKE); paint.setStrokeWidth(stroke); paint.setStrokeCap(Paint.Cap.ROUND);
@@ -312,7 +312,7 @@ public final class ShizukuSetupActivity extends Activity {
             if (fraction > 0) canvas.drawArc(ring, -90, 360 * fraction, false, paint);
             number.setTextSize(ui.sp(30)); unit.setTextSize(ui.sp(12.5f));
             canvas.drawText(Integer.toString(left), cx, cy + ui.sp(4), number);
-            canvas.drawText("s left", cx, cy + ui.sp(24), unit);
+            canvas.drawText("s rest.", cx, cy + ui.sp(24), unit);
         }
     }
 }

@@ -63,8 +63,8 @@ final class ChargeHistoryDialog {
     }
     private void load() {
         if (!available()) return;
-        body.removeAllViews(); body.addView(header("Charge recordings", false));
-        TextView loading = ui.caption("Loading recordings…"); loading.setPadding(ui.dp(18), ui.dp(12), ui.dp(18), ui.dp(12));
+        body.removeAllViews(); body.addView(header("Historial de cargas", false));
+        TextView loading = ui.caption("Cargando registros…"); loading.setPadding(ui.dp(18), ui.dp(12), ui.dp(18), ui.dp(12));
         body.addView(loading);
         int generation = ++loadGeneration;
         ScooterService s = host.service();
@@ -76,15 +76,15 @@ final class ChargeHistoryDialog {
     }
     private void failed() {
         if (!available()) return;
-        body.removeAllViews(); body.addView(header("Charge recordings", false));
-        LinearLayout box = padded(); box.addView(ui.caption("Could not load recordings."));
-        box.addView(ui.secondaryButton("Retry", this::load)); body.addView(box);
+        body.removeAllViews(); body.addView(header("Historial de cargas", false));
+        LinearLayout box = padded(); box.addView(ui.caption("No se pudieron cargar los registros."));
+        box.addView(ui.secondaryButton("Reintentar", this::load)); body.addView(box);
     }
     private void showList() {
         if (!available()) return;
-        body.removeAllViews(); body.addView(header("Charge recordings", false));
+        body.removeAllViews(); body.addView(header("Historial de cargas", false));
         LinearLayout list = padded(); list.setTag("charge-history-list");
-        if (recordings.isEmpty()) list.addView(ui.caption("No saved charge recordings yet."));
+        if (recordings.isEmpty()) list.addView(ui.caption("No hay registros de carga guardados."));
         for (ChargeSessionStore.HistorySession session : recordings) {
             LinearLayout row = column(); row.setPadding(ui.dp(16), ui.dp(14), ui.dp(16), ui.dp(14));
             row.setBackground(new RippleDrawable(ColorStateList.valueOf(Ui.withAlpha(ui.accent, 45)),
@@ -100,13 +100,13 @@ final class ChargeHistoryDialog {
             LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(-1, -2); rp.bottomMargin = ui.dp(10); list.addView(row, rp);
         }
         if (host.service() != null && host.service().isChargeRecording()) {
-            TextView note = ui.caption("The current recording appears here after it stops."); note.setPadding(0, ui.dp(8), 0, 0); list.addView(note);
+            TextView note = ui.caption("El registro actual aparecerá aquí cuando finalice."); note.setPadding(0, ui.dp(8), 0, 0); list.addView(note);
         }
         body.addView(scroller(list), new LinearLayout.LayoutParams(-1, 0, 1));
     }
     private void showDetail(ChargeSessionStore.HistorySession session) {
         if (!available() || !profile.equals(session.profile)) return;
-        body.removeAllViews(); body.addView(header("Charge recording", true));
+        body.removeAllViews(); body.addView(header("Registro de carga", true));
         LinearLayout contents = padded(); contents.setTag("charge-history-detail");
         contents.addView(ui.text(dateTime(session.startedWall), 20, true));
         TextView sub = ui.caption(charger(session.charger) + " · " + batterySpan(session));
@@ -118,9 +118,9 @@ final class ChargeHistoryDialog {
     /** A Volt charging schedule, or the charger itself, held current off; the chart shows each as a gap. */
     private static String paused(ChargeSessionStore.HistorySession session) {
         String text = "";
-        if (session.pauses > 0) text += " · paused " + duration(session.pausedMs) + " for the schedule";
+        if (session.pauses > 0) text += " · en pausa " + duration(session.pausedMs) + " por la programación";
         if (session.chargerPauses > 0)
-            text += " · charger stopped " + (session.chargerPauses == 1 ? "once" : session.chargerPauses + " times") + " (" + duration(session.chargerPausedMs) + ")";
+            text += " · cargador detenido " + (session.chargerPauses == 1 ? "una vez" : session.chargerPauses + " veces") + " (" + duration(session.chargerPausedMs) + ")";
         return text;
     }
     private static String duration(long ms) {
@@ -132,10 +132,10 @@ final class ChargeHistoryDialog {
         for (ChargeSessionStore.HistoryPoint point : session.points) if (Double.isFinite(point.batteryPercent)) {
             if (first == null) first = point.batteryPercent; last = point.batteryPercent;
         }
-        return first == null ? "No battery samples" : String.format(Locale.getDefault(), "%.0f%% → %.0f%%", first, last);
+        return first == null ? "Sin muestras de batería" : String.format(Locale.getDefault(), "%.0f%% → %.0f%%", first, last);
     }
     private String charger(ChargeSessionStore.Charger charger) {
-        return charger == ChargeSessionStore.Charger.HIGH_SPEED ? "High-speed charger" : "Stock charger";
+        return charger == ChargeSessionStore.Charger.HIGH_SPEED ? "Cargador rápido" : "Cargador estándar";
     }
     private LinearLayout header(String title, boolean back) {
         LinearLayout head = new LinearLayout(host.activity()); head.setGravity(Gravity.CENTER_VERTICAL);
@@ -219,7 +219,7 @@ final class ChargeHistoryDialog {
         return date ? new SimpleDateFormat("MMM d", Locale.getDefault()).format(new Date(wall)) + " " + time : time;
     }
     private static String source(ChargeSessionStore.Source source) {
-        return source == ChargeSessionStore.Source.PERSONAL ? "Personal curve" : source == ChargeSessionStore.Source.STOCK_REFERENCE ? "Stock reference" : source == ChargeSessionStore.Source.FAST_REFERENCE ? "High-speed reference" : source == ChargeSessionStore.Source.CURRENT_RATE ? "Current rate" : "Unavailable";
+        return source == ChargeSessionStore.Source.PERSONAL ? "Curva personal" : source == ChargeSessionStore.Source.STOCK_REFERENCE ? "Referencia estándar" : source == ChargeSessionStore.Source.FAST_REFERENCE ? "Referencia rápida" : source == ChargeSessionStore.Source.CURRENT_RATE ? "Tasa actual" : "No disponible";
     }
 
     private final class Panel extends LinearLayout {
@@ -247,8 +247,8 @@ final class ChargeHistoryDialog {
             controls = column();
             if (!full) {
                 LinearLayout heading = new LinearLayout(host.activity()); heading.setGravity(Gravity.CENTER_VERTICAL);
-                heading.addView(ui.text("Charge readings", 18, true), new LinearLayout.LayoutParams(0, -2, 1));
-                View expand = iconButton("fit", "Expand charge graph", this::expand);
+                heading.addView(ui.text("Lecturas de carga", 18, true), new LinearLayout.LayoutParams(0, -2, 1));
+                View expand = iconButton("fit", "Ampliar gráfico de carga", this::expand);
                 expand.setTag("charge-history-expand"); heading.addView(expand); controls.addView(heading);
             }
             choices = new Flow(); choices.setTag(tag("choices")); choices.setPadding(0, ui.dp(8), 0, ui.dp(10)); controls.addView(choices);
@@ -256,7 +256,7 @@ final class ChargeHistoryDialog {
             controlsScroll = full ? scroller(controls) : null;
             if (full) addView(controlsScroll, new LinearLayout.LayoutParams(-1, ui.dp(112))); else addView(controls);
             chart = new RideChartView(ui); chart.setTag(tag("chart"));
-            chart.setChartTitle("Charge chart", "Fit whole charge");
+            chart.setChartTitle("Gráfico de carga", "Ajustar carga completa");
             chart.setValueFormatter(new RideChartView.ValueFormatter() {
                 @Override public String axis(RideChartData.Series series, double value) {
                     if ("Time".equals(series.unit)) return clock(Math.round(value), crossesDay(series), series.max - series.min < 240_000);
@@ -285,8 +285,8 @@ final class ChargeHistoryDialog {
             if (full) addView(traceScroll, new LinearLayout.LayoutParams(-1, ui.dp(104))); else addView(readings);
             chart.setInspectionListener(this::inspect);
             LinearLayout zoom = new LinearLayout(host.activity()); zoom.setGravity(Gravity.CENTER); zoom.setPadding(0, ui.dp(6), 0, 0);
-            TextView[] buttons = {ui.secondaryButton("−", () -> chart.zoomBy(.5)), ui.secondaryButton("Fit", chart::reset), ui.secondaryButton("+", () -> chart.zoomBy(2))};
-            String[] ids = {"zoom-out", "fit", "zoom-in"}, descriptions = {"Zoom out charge chart", "Fit whole charge", "Zoom in charge chart"};
+            TextView[] buttons = {ui.secondaryButton("−", () -> chart.zoomBy(.5)), ui.secondaryButton("Ajustar", chart::reset), ui.secondaryButton("+", () -> chart.zoomBy(2))};
+            String[] ids = {"zoom-out", "fit", "zoom-in"}, descriptions = {"Alejar gráfico de carga", "Ajustar carga completa", "Acercar gráfico de carga"};
             for (int i = 0; i < buttons.length; i++) {
                 buttons[i].setTag(tag(ids[i])); buttons[i].setContentDescription(descriptions[i]);
                 LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, ui.dp(48), 1); p.setMargins(ui.dp(3), 0, ui.dp(3), 0); zoom.addView(buttons[i], p);
@@ -298,8 +298,8 @@ final class ChargeHistoryDialog {
             boolean saved = false;
             for (ChargeSessionStore.HistoryPoint point : session.points) saved |= point.estimate != null;
             String comparison = session.observedCompleteMono == null ? "Finish not observed; no actual comparison."
-                    : "Observed 100% · " + dateTime(session.observedCompleteWall);
-            return (saved ? "" : "Estimates weren't saved in this recording.\n") + comparison;
+                    : "100% observado · " + dateTime(session.observedCompleteWall);
+            return (saved ? "" : "No se guardaron estimaciones en este registro.\n") + comparison;
         }
         @Override protected void onMeasure(int width, int height) {
             if (full) {
@@ -319,10 +319,10 @@ final class ChargeHistoryDialog {
                 android.widget.CheckBox toggle = new android.widget.CheckBox(host.activity());
                 toggle.setTag((full ? "charge-fullscreen-series:" : "charge-series:") + series.key);
                 toggle.setButtonDrawable(null); toggle.setMinHeight(ui.dp(48));
-                toggle.setText(pattern(series) + series.label + (series.available() ? "" : " · no data"));
+                toggle.setText(pattern(series) + series.label + (series.available() ? "" : " · sin datos"));
                 toggle.setTextSize(12 * ui.textScale); toggle.setTypeface(ui.semibold()); toggle.setPadding(ui.dp(10), ui.dp(8), ui.dp(10), ui.dp(8));
                 toggle.setChecked(chosen.contains(series.key));
-                toggle.setContentDescription(series.label + (series.available() ? "" : ", no samples recorded"));
+                toggle.setContentDescription(series.label + (series.available() ? "" : ", sin muestras registradas"));
                 Runnable style = () -> { toggle.setTextColor(toggle.isChecked() ? ui.text : ui.muted); toggle.setBackground(ui.shape(toggle.isChecked() ? Ui.withAlpha(series.color, 50) : ui.raised, 12, toggle.isChecked() ? series.color : ui.outline)); };
                 style.run(); toggle.setOnCheckedChangeListener((button, checked) -> {
                     if (checked) chosen.add(series.key); else chosen.remove(series.key);
@@ -354,14 +354,14 @@ final class ChargeHistoryDialog {
                 LinearLayout cell = column(); cell.setMinimumWidth(ui.dp(124)); cell.setPadding(ui.dp(10), ui.dp(6), ui.dp(10), ui.dp(6));
                 TextView label = ui.text(pattern(series) + series.label, 12, false); label.setSingleLine(true); cell.addView(label);
                 TextView reading = ui.text(chart.formatSample(series, value), 17, true); reading.setSingleLine(true); cell.addView(reading);
-                TextView stamp = ui.caption(value == null || value.value == null ? "—" : "At " + RideChartView.sampleTime(value.time)); stamp.setSingleLine(true); cell.addView(stamp);
+                TextView stamp = ui.caption(value == null || value.value == null ? "—" : "A las " + RideChartView.sampleTime(value.time)); stamp.setSingleLine(true); cell.addView(stamp);
                 if (value != null && (series.key.startsWith("estimated_") || series.key.startsWith("limit_"))) {
                     ChargeSessionStore.Estimate estimate = estimateAt(value.time);
                     if (estimate != null) {
                         boolean limit = series.key.startsWith("limit_");
                         String detail = source(limit ? estimate.limitSource : estimate.fullSource) + " · Estimator " + estimate.version;
-                        if (estimate.learnedSessions > 0) detail += " · " + estimate.learnedSessions + " learned charges";
-                        if (limit && estimate.targetPercent != null) detail += String.format(Locale.getDefault(), " · %.0f%% target", estimate.targetPercent);
+                        if (estimate.learnedSessions > 0) detail += " · " + estimate.learnedSessions + " cargas aprendidas";
+                        if (limit && estimate.targetPercent != null) detail += String.format(Locale.getDefault(), " · objetivo %.0f%%", estimate.targetPercent);
                         TextView provenance = ui.caption(detail); provenance.setSingleLine(true); cell.addView(provenance);
                     }
                 }
@@ -381,9 +381,9 @@ final class ChargeHistoryDialog {
             if (!available() || expanded != null) return;
             LinearLayout expandedBody = column(); expandedBody.setBackgroundColor(ui.bg); expandedBody.setTag("charge-history-fullscreen");
             LinearLayout heading = new LinearLayout(host.activity()); heading.setGravity(Gravity.CENTER_VERTICAL); heading.setPadding(ui.dp(16), ui.dp(4), ui.dp(6), ui.dp(4));
-            heading.addView(ui.text("Charge readings", 20, true), new LinearLayout.LayoutParams(0, -2, 1));
+            heading.addView(ui.text("Lecturas de carga", 20, true), new LinearLayout.LayoutParams(0, -2, 1));
             Panel child = new Panel(session, true); child.chart.restoreState(chart.getState());
-            heading.addView(iconButton("close", "Close expanded charge graph", () -> { if (expanded != null) expanded.dismiss(); }));
+            heading.addView(iconButton("close", "Cerrar gráfico de carga ampliado", () -> { if (expanded != null) expanded.dismiss(); }));
             ScrollView viewport = scroller(child); viewport.setFillViewport(true);
             expandedBody.addView(heading); expandedBody.addView(viewport, new LinearLayout.LayoutParams(-1, 0, 1));
             expanded = page(expandedBody);

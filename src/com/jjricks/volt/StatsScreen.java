@@ -68,8 +68,8 @@ public final class StatsScreen implements AppScreen {
     private String query, selectedSection;
     private String favouritesShown, devicesShown, eventsShown;
     private final EditText search;
-    private static final String[] SECTIONS = {"Overview", "Readings", "Charts", "Diagnostics"};
-    private static final String[] WIDE_SECTIONS = {"Overview", "Charts", "Diagnostics"};
+    private static final String[] SECTIONS = {"Resumen", "Lecturas", "Gráficos", "Diagnóstico"};
+    private static final String[] WIDE_SECTIONS = {"Resumen", "Gráficos", "Diagnóstico"};
     private AlertDialog metricDialog;
     private final TextView batteryHeadline, batteryDetails,
             resultCount, rawValues, favouritesHint;
@@ -116,12 +116,12 @@ public final class StatsScreen implements AppScreen {
         int widthDp = host.activity().getResources().getConfiguration().screenWidthDp;
         // Same trigger as MainActivity's side rail: the content area beside the rail is wide enough for two panes.
         wide = widthDp >= WIDE_DP;
-        selectedSection = validSection(preferences.getString("stats_section", "Overview"));
+        selectedSection = validSection(preferences.getString("stats_section", "Resumen"));
         // Readings has its own pane when wide; a saved Readings tab opens Overview beside it (the saved choice is kept).
-        if (wide && selectedSection.equals("Readings")) selectedSection = "Overview";
+        if (wide && selectedSection.equals("Lecturas")) selectedSection = "Resumen";
         overviewSection = vertical(); readingsSection = vertical(); chartsSection = vertical(); diagnosticsSection = vertical();
         String[] sections = wide ? WIDE_SECTIONS : SECTIONS;
-        sectionTabs = new SegmentedSelector(ui, "Live Stats section", sections, choice -> selectSection(sections[choice]));
+        sectionTabs = new SegmentedSelector(ui, "Sección de Estadísticas en vivo", sections, choice -> selectSection(sections[choice]));
         sectionTabs.useCompactPadding();
         sectionTabs.setTag("live-stats-sections");
         sectionTabs.select(java.util.Arrays.asList(sections).indexOf(selectedSection), false);
@@ -170,10 +170,10 @@ public final class StatsScreen implements AppScreen {
         battery.setGravity(compactBattery ? Gravity.CENTER_HORIZONTAL : Gravity.CENTER_VERTICAL);
         batteryRing = ui.new BatteryRing(); battery.addView(batteryRing, new LinearLayout.LayoutParams(ui.dp(120), ui.dp(136)));
         LinearLayout batteryWords = vertical(); batteryWords.setPadding(compactBattery ? 0 : ui.dp(10), compactBattery ? ui.dp(8) : 0, 0, 0);
-        batteryHeadline = ui.text("Waiting for readings", 17, true); batteryHeadline.setPadding(0, 0, 0, ui.dp(6)); batteryWords.addView(batteryHeadline);
+        batteryHeadline = ui.text("Esperando lecturas", 17, true); batteryHeadline.setPadding(0, 0, 0, ui.dp(6)); batteryWords.addView(batteryHeadline);
         batteryDetails = ui.text("", 12.5f, false); batteryDetails.setTextColor(ui.muted); batteryWords.addView(batteryDetails);
         battery.addView(batteryWords, compactBattery ? new LinearLayout.LayoutParams(-1, -2) : new LinearLayout.LayoutParams(0, -2, 1)); overviewSection.addView(battery);
-        TextView favouritesTitle = ui.text("Favourites", 19, true);
+        TextView favouritesTitle = ui.text("Favoritos", 19, true);
         favouritesTitle.setPadding(ui.dp(4), ui.dp(12), ui.dp(4), ui.dp(10));
         if (Build.VERSION.SDK_INT >= 28) favouritesTitle.setAccessibilityHeading(true);
         LinearLayout favouriteHeader = new LinearLayout(host.activity()); favouriteHeader.setGravity(Gravity.CENTER_VERTICAL);
@@ -181,22 +181,22 @@ public final class StatsScreen implements AppScreen {
         FrameLayout reorder = new FrameLayout(host.activity());
         reorder.addView(ui.icon("reorder", 22, ui.text), new FrameLayout.LayoutParams(ui.dp(22), ui.dp(22), Gravity.CENTER));
         reorder.setBackground(new RippleDrawable(ColorStateList.valueOf(Ui.withAlpha(ui.accent, 40)), null, ui.shape(Color.WHITE, 24, 0)));
-        reorder.setContentDescription("Reorder favourite readings and charts");
-        if (Build.VERSION.SDK_INT >= 26) reorder.setTooltipText("Reorder favourites");
+        reorder.setContentDescription("Reordenar lecturas y gráficos favoritos");
+        if (Build.VERSION.SDK_INT >= 26) reorder.setTooltipText("Reordenar favoritos");
         reorder.setClickable(true); reorder.setFocusable(true); reorder.setOnClickListener(v -> showFavouriteOrder());
         ui.pressFeedback(reorder);
         reorderFavourites = reorder;
         favouriteHeader.addView(reorderFavourites, new LinearLayout.LayoutParams(ui.dp(48), ui.dp(48)));
         overviewSection.addView(favouriteHeader);
         favouritesCard = ui.groupCard(); overviewSection.addView(favouritesCard);
-        favouritesHint = ui.text("☆ Star readings to pin here", 14, false);
+        favouritesHint = ui.text("☆ Marca lecturas para fijarlas aquí", 14, false);
         favouritesHint.setTextColor(ui.muted); favouritesHint.setGravity(Gravity.CENTER);
         favouritesHint.setMinHeight(ui.dp(120)); favouritesHint.setPadding(ui.dp(20), ui.dp(22), ui.dp(20), ui.dp(22));
         GradientDrawable empty = new GradientDrawable(); empty.setColor(Ui.withAlpha(ui.surface, 140));
         empty.setCornerRadius(ui.dp(18)); empty.setStroke(ui.dp(1), ui.dim, ui.dp(6), ui.dp(5));
         favouritesHint.setBackground(empty); favouritesHint.setTag("stats-empty-favourites");
         favouritesHint.setFocusable(true); favouritesHint.setOnClickListener(v -> {
-            if (!wide) selectSection("Readings");
+            if (!wide) selectSection("Lecturas");
             else readingsScroll.smoothScrollTo(0, 0);
         });
         overviewSection.addView(favouritesHint, new LinearLayout.LayoutParams(-1, -2));
@@ -206,8 +206,8 @@ public final class StatsScreen implements AppScreen {
         sectionScroll.getViewTreeObserver().addOnScrollChangedListener(chartScroll);
 
         // Readings: keep the count row geometry when removing the redundant Favourites filter.
-        search = new EditText(host.activity()); search.setSingleLine(true); search.setHint("Search");
-        ui.styleSearch(search); search.setContentDescription("Search scooter measurements"); search.setText(query);
+        search = new EditText(host.activity()); search.setSingleLine(true); search.setHint("Buscar");
+        ui.styleSearch(search); search.setContentDescription("Buscar mediciones del patinete"); search.setText(query);
         readingsSection.addView(search, ui.searchLayout());
         SearchFocus.bind(search, host.activity().getWindow());
         LinearLayout filters = new LinearLayout(host.activity()); filters.setGravity(Gravity.CENTER_VERTICAL);
@@ -229,14 +229,14 @@ public final class StatsScreen implements AppScreen {
         });
 
         // Diagnostics: actions, device firmware, the connection log and raw payloads in a dark inset.
-        LinearLayout evidence = ui.card(); TextView diagnosticsTitle = ui.text("Diagnostics", 17, true); evidence.addView(diagnosticsTitle);
+        LinearLayout evidence = ui.card(); TextView diagnosticsTitle = ui.text("Diagnóstico", 17, true); evidence.addView(diagnosticsTitle);
         if (Build.VERSION.SDK_INT >= 28) diagnosticsTitle.setAccessibilityHeading(true);
         LinearLayout actions = new StackingRow(); actions.setPadding(0, ui.dp(5), 0, 0);
         // No toast: the button spins and stays disabled until the reads answer (or time out).
-        refreshButton = ui.secondaryButton("Refresh", this::refreshDiagnostics);
-        ui.decorate(refreshButton, "recovery"); refreshButton.setContentDescription("Refresh diagnostic reads");
-        TextView export = ui.secondaryButton("Export", () -> host.saveText("navee-diagnostics.json", "application/json", service.snapshot()));
-        ui.decorate(export, "export"); export.setContentDescription("Export diagnostics JSON. Excludes owner keys and PIN");
+        refreshButton = ui.secondaryButton("Actualizar", this::refreshDiagnostics);
+        ui.decorate(refreshButton, "recovery"); refreshButton.setContentDescription("Actualizar lecturas de diagnóstico");
+        TextView export = ui.secondaryButton("Exportar", () -> host.saveText("navee-diagnostics.json", "application/json", service.snapshot()));
+        ui.decorate(export, "export"); export.setContentDescription("Exportar JSON de diagnóstico. Excluye llaves de propietario y PIN");
         for (TextView action : new TextView[] {refreshButton, export}) {
             action.setPadding(ui.dp(12), ui.dp(12), ui.dp(12), ui.dp(12)); action.setCompoundDrawablePadding(ui.dp(8));
         }
@@ -244,18 +244,18 @@ public final class StatsScreen implements AppScreen {
         LinearLayout.LayoutParams second = new LinearLayout.LayoutParams(0, -2, 1); second.leftMargin = ui.dp(4); second.topMargin = ui.dp(6);
         actions.addView(refreshButton, first); actions.addView(export, second); evidence.addView(actions);
         // The privacy fact sits under Export, the action it describes.
-        TextView privacy = ui.caption("Excludes owner keys & PIN"); privacy.setGravity(Gravity.END);
+        TextView privacy = ui.caption("Excluye llaves de propietario y PIN"); privacy.setGravity(Gravity.END);
         privacy.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11.5f * ui.textScale); privacy.setPadding(ui.dp(4), ui.dp(2), ui.dp(4), 0);
         privacy.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         evidence.addView(privacy, new LinearLayout.LayoutParams(-1, -2)); diagnosticsSection.addView(evidence);
-        deviceLabel = ui.sectionLabel("Device"); diagnosticsSection.addView(deviceLabel);
+        deviceLabel = ui.sectionLabel("Dispositivo"); diagnosticsSection.addView(deviceLabel);
         deviceCard = ui.groupCard(); diagnosticsSection.addView(deviceCard);
-        diagnosticsSection.addView(ui.sectionLabel("Recent connection events"));
+        diagnosticsSection.addView(ui.sectionLabel("Eventos de conexión recientes"));
         eventsCard = ui.groupCard(); diagnosticsSection.addView(eventsCard);
-        diagnosticsSection.addView(ui.sectionLabel("Raw read payloads"));
+        diagnosticsSection.addView(ui.sectionLabel("Cargas útiles de lectura sin procesar"));
         LinearLayout rawCard = ui.card(); LinearLayout inset = vertical();
         inset.setBackground(ui.shape(ui.dark ? ui.bg : ui.raised, 12, 0)); inset.setPadding(ui.dp(12), ui.dp(10), ui.dp(12), ui.dp(10));
-        rawValues = ui.text("None yet", 11, false); rawValues.setTypeface(Typeface.MONOSPACE); rawValues.setTextColor(ui.muted);
+        rawValues = ui.text("Ninguno todavía", 11, false); rawValues.setTypeface(Typeface.MONOSPACE); rawValues.setTextColor(ui.muted);
         rawValues.setTextIsSelectable(true); inset.addView(rawValues); rawCard.addView(inset, new LinearLayout.LayoutParams(-1, -2));
         diagnosticsSection.addView(rawCard);
         applyFilter(); showSection(); refresh();
@@ -280,10 +280,10 @@ public final class StatsScreen implements AppScreen {
         }
     }
     /** Whether the Readings section is on screen: always when wide, otherwise only as the selected tab. */
-    private boolean readingsShown() { return wide || selectedSection.equals("Readings"); }
+    private boolean readingsShown() { return wide || selectedSection.equals("Lecturas"); }
     private static String validSection(String section) {
         for (String known : SECTIONS) if (known.equals(section)) return known;
-        return "Overview";
+        return "Resumen";
     }
     private int tabsTop() {
         View tabs = sectionTabs;
@@ -292,10 +292,10 @@ public final class StatsScreen implements AppScreen {
         return tabs == page ? top + page.getTop() : 0;
     }
     private void showSection() {
-        overviewSection.setVisibility(selectedSection.equals("Overview") ? View.VISIBLE : View.GONE);
+        overviewSection.setVisibility(selectedSection.equals("Resumen") ? View.VISIBLE : View.GONE);
         readingsSection.setVisibility(readingsShown() ? View.VISIBLE : View.GONE);
-        chartsSection.setVisibility(selectedSection.equals("Charts") ? View.VISIBLE : View.GONE);
-        diagnosticsSection.setVisibility(selectedSection.equals("Diagnostics") ? View.VISIBLE : View.GONE);
+        chartsSection.setVisibility(selectedSection.equals("Gráficos") ? View.VISIBLE : View.GONE);
+        diagnosticsSection.setVisibility(selectedSection.equals("Diagnóstico") ? View.VISIBLE : View.GONE);
     }
     private void selectSection(String section) {
         String next = validSection(section);
@@ -304,7 +304,7 @@ public final class StatsScreen implements AppScreen {
                 overviewSection, readingsSection, chartsSection, diagnosticsSection);
         selectedSection = next; showSection();
         sectionTabs.select(java.util.Arrays.asList(wide ? WIDE_SECTIONS : SECTIONS).indexOf(selectedSection), true);
-        boolean hideChartSearch = !selectedSection.equals("Charts") && chartBrowser.search.hasFocus();
+        boolean hideChartSearch = !selectedSection.equals("Gráficos") && chartBrowser.search.hasFocus();
         if (!readingsShown() || hideChartSearch) {
             InputMethodManager keyboard = host.activity().getSystemService(InputMethodManager.class);
             if (keyboard != null) keyboard.hideSoftInputFromWindow(search.getWindowToken(), 0);
@@ -413,7 +413,7 @@ public final class StatsScreen implements AppScreen {
         TextView label = ui.text(name, dense ? 13 : 14, false); words.addView(label);
         TextView source = ui.caption(""); source.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11 * ui.textScale); source.setPadding(0, ui.dp(2), 0, 0); words.addView(source);
         row.addView(words, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView amount = ui.text("Not reported", dense ? 13 : 14, true); amount.setGravity(Gravity.END); row.amount = amount;
+        TextView amount = ui.text("No informado", dense ? 13 : 14, true); amount.setGravity(Gravity.END); row.amount = amount;
         LinearLayout.LayoutParams amountParams = new LinearLayout.LayoutParams(-2, -2); amountParams.leftMargin = ui.dp(12); row.addView(amount, amountParams);
         TextView star = ui.text("☆", 17, false); star.setGravity(Gravity.CENTER); star.setFocusable(true); star.setClickable(true);
         star.setBackground(new RippleDrawable(ColorStateList.valueOf(Ui.withAlpha(ui.orange, 40)), null, ui.shape(Color.WHITE, 24, 0)));
@@ -429,8 +429,8 @@ public final class StatsScreen implements AppScreen {
     private void styleStar(Row row) {
         boolean on = favourites.contains(row.key);
         row.star.setText(on ? "★" : "☆"); row.star.setTextColor(on ? ui.orange : ui.dim); row.star.setSelected(on);
-        row.star.setContentDescription(on ? "Remove " + row.label + " from favourites" : "Add " + row.label + " to favourites");
-        if (Build.VERSION.SDK_INT >= 30) row.star.setStateDescription(on ? "Favourite" : "Not a favourite");
+        row.star.setContentDescription(on ? "Remove " + row.label + " de favoritos" : "Add " + row.label + " a favoritos");
+        if (Build.VERSION.SDK_INT >= 30) row.star.setStateDescription(on ? "Favorito" : "No es favorito");
     }
     private void toggleFavourite(String key) {
         if (!favourites.remove(key)) favourites.add(key);
@@ -466,12 +466,12 @@ public final class StatsScreen implements AppScreen {
             group.title.setText(group.name);
             Drawable arrow = new StatsGlyph(false, open, ui.text); arrow.setBounds(0, 0, ui.dp(26), ui.dp(26));
             group.title.setCompoundDrawablesRelative(null, null, arrow, null);
-            group.title.setContentDescription(group.name + " readings");
-            if (Build.VERSION.SDK_INT >= 30) group.title.setStateDescription(open ? "Expanded" : "Collapsed");
-            else group.title.setContentDescription(group.name + " readings, " + (open ? "expanded" : "collapsed"));
+            group.title.setContentDescription(group.name + " lecturas");
+            if (Build.VERSION.SDK_INT >= 30) group.title.setStateDescription(open ? "Expandido" : "Plegado");
+            else group.title.setContentDescription(group.name + " readings, " + (open ? "expandido" : "plegado"));
         }
-        resultCount.setText(count == 0 ? "No matching readings"
-                : count + (count == 1 ? " reading" : " readings"));
+        resultCount.setText(count == 0 ? "No hay lecturas coincidentes"
+                : count + (count == 1 ? " lectura" : " lecturas"));
     }
     @Override public View view() { return scroll; }
     @Override public void refresh() {
@@ -482,34 +482,34 @@ public final class StatsScreen implements AppScreen {
             boolean fresh = reading.live && reading.value != null;
             row.amount.setText(amountText(reading)); row.amount.setTextColor(fresh ? ui.text : ui.muted);
             row.name.setTextColor(fresh ? ui.text : ui.muted);
-            String age = reading.value == null ? "Not supplied" : reading.live ? "Live" : savedTime(reading.capturedWallMs);
+            String age = reading.value == null ? "No suministrado" : reading.live ? "En vivo" : savedTime(reading.capturedWallMs);
             row.evidence.setText(age);
             row.evidence.setVisibility(reading.value != null && !reading.live ? View.VISIBLE : View.GONE);
             styleStar(row);
-            row.layout.setContentDescription(row.label + ", " + spokenValue(reading) + ", " + age + ". Tap for details.");
+            row.layout.setContentDescription(row.label + ", " + spokenValue(reading) + ", " + age + ". Toca para ver detalles.");
             if (isKnownDriveMode(reading.key)) {
-                row.amount.setContentDescription("Drive mode, " + display(reading) + ", " + age);
+                row.amount.setContentDescription("Modo de conducción, " + display(reading) + ", " + age);
                 ui.styleDriveMode(row.amount, display(reading), reading.live);
             }
         }
         updateRefreshButton();
-        if (selectedSection.equals("Overview")) refreshOverview(readings);
+        if (selectedSection.equals("Resumen")) refreshOverview(readings);
         chartBrowser.refresh();
-        if (!selectedSection.equals("Diagnostics")) return;
+        if (!selectedSection.equals("Diagnóstico")) return;
         StringBuilder raw = new StringBuilder(); Map<Integer, Integer> statuses = service.ble.telemetry.statuses();
         for (Map.Entry<Integer, byte[]> e : service.ble.telemetry.frames().entrySet()) {
             if (ScooterCommands.sensitiveCommand(e.getKey())) continue;
             raw.append(String.format(Locale.US, "0x%02X", e.getKey())).append("  status ").append(statuses.get(e.getKey())).append("  ")
                     .append(e.getValue().length).append(" bytes\n").append(Protocol.hex(e.getValue())).append("\n\n");
         }
-        rawValues.setText(raw.length() == 0 ? "None yet" : raw.toString().trim());
+        rawValues.setText(raw.length() == 0 ? "Ninguno todavía" : raw.toString().trim());
         refreshDevices(readings); refreshEvents();
     }
     private void refreshOverview(Map<String, TelemetryHistory.Reading> readings) {
         TelemetryHistory.Reading soc = readings.get("battery_percent"),
                 range = service.dashboardReadings().get("remaining_range_km");
-        batteryRing.set(soc == null ? null : soc.number, soc == null || soc.value == null ? "No reading"
-                : soc.live ? "" : "Last seen", false);
+        batteryRing.set(soc == null ? null : soc.number, soc == null || soc.value == null ? "Sin lectura"
+                : soc.live ? "" : "Visto por última vez", false);
         batteryRing.setLive(soc != null && soc.live);
         batteryHeadline.setText(rangeHeadline(range));
         batteryHeadline.setTextColor(range != null && range.live && range.value != null ? ui.text : ui.muted);
@@ -525,7 +525,7 @@ public final class StatsScreen implements AppScreen {
         if (temperature != null && temperature.value != null) pack.append("Pack ").append(display(temperature));
         if (health != null && health.value != null) {
             // The controller's health figure is an estimate: tagged here, explained in its detail dialog.
-            pack.append(pack.length() == 0 ? "Health " : " · Health ").append(display(health)).append('\u00A0');
+            pack.append(pack.length() == 0 ? "Health " : " · Salud ").append(display(health)).append('\u00A0');
             appendChip(pack, "est.");
         }
         // A missing electrical line is simply left out.
@@ -533,16 +533,16 @@ public final class StatsScreen implements AppScreen {
         if (pack.length() > 0) { if (details.length() > 0) details.append('\n'); details.append(pack); }
         if (soc != null && soc.value != null && !soc.live) { if (details.length() > 0) details.append('\n'); details.append(savedTime(soc.capturedWallMs)); }
         batteryDetails.setText(details); batteryDetails.setVisibility(details.length() == 0 ? View.GONE : View.VISIBLE);
-        batteryDetails.setContentDescription(details.toString().replace("\u00A0est.", " estimated"));
+        batteryDetails.setContentDescription(details.toString().replace("\u00A0est.", " estimado"));
         refreshFavourites(readings);
     }
     private String rangeHeadline(TelemetryHistory.Reading range) {
-        if (range == null || range.value == null) return "Range not reported";
+        if (range == null || range.value == null) return "Autonomía no informada";
         if (range.number == null) return "Range " + range.value;
         String units = preferences.getString("units", "mi");
         long km = Math.round(range.number), miles = Math.round(range.number / RideStore.KM_PER_MILE);
         String amount = "km".equals(units) ? km + " km" : "dual".equals(units) ? miles + " mi / " + km + " km" : miles + " mi";
-        return "≈ " + amount + " left";
+        return "≈ " + amount + " restante";
     }
     private List<String> favouriteOrder() {
         return StatsFavouriteOrder.resolve(preferences.getString("stats_favourite_order", ""), favourites,
@@ -591,10 +591,10 @@ public final class StatsScreen implements AppScreen {
         LinearLayout.LayoutParams grabParams = new LinearLayout.LayoutParams(ui.dp(36), ui.dp(4));
         grabParams.gravity = Gravity.CENTER_HORIZONTAL; grabParams.bottomMargin = ui.dp(10); content.addView(grab, grabParams);
         LinearLayout head = new LinearLayout(host.activity()); head.setGravity(Gravity.CENTER_VERTICAL);
-        TextView title = ui.text("Reorder favourites", 20, true);
+        TextView title = ui.text("Reordenar favoritos", 20, true);
         if (Build.VERSION.SDK_INT >= 28) title.setAccessibilityHeading(true);
         head.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView done = ui.secondaryButton("Done", () -> { if (orderDialog != null) orderDialog.dismiss(); });
+        TextView done = ui.secondaryButton("Listo", () -> { if (orderDialog != null) orderDialog.dismiss(); });
         head.addView(done, new LinearLayout.LayoutParams(-2, -2));
         LinearLayout.LayoutParams headSpace = new LinearLayout.LayoutParams(-1, -2); headSpace.bottomMargin = ui.dp(12);
         content.addView(head, headSpace);
@@ -605,7 +605,7 @@ public final class StatsScreen implements AppScreen {
         for (String id : favouriteOrder()) {
             String key = id.substring(id.indexOf(':') + 1), name = readings.get(key) == null ? key : readingLabel(readings.get(key));
             boolean chart = id.startsWith("chart:");
-            list.add(id, name + (chart ? " · Chart" : ""), name + (chart ? " chart" : " reading"));
+            list.add(id, name + (chart ? " · Gráfico" : ""), name + (chart ? " gráfico" : " lectura"));
         }
         content.addView(list, new LinearLayout.LayoutParams(-1, -2));
         ScrollView scroller = new ScrollView(host.activity()); scroller.addView(content);
@@ -626,7 +626,7 @@ public final class StatsScreen implements AppScreen {
     private void refreshDevices(Map<String, TelemetryHistory.Reading> readings) {
         StringBuilder signature = new StringBuilder(); List<TelemetryHistory.Reading> device = new ArrayList<TelemetryHistory.Reading>();
         for (TelemetryHistory.Reading reading : readings.values()) {
-            if (!"Device".equals(reading.group)) continue;
+            if (!"Dispositivo".equals(reading.group)) continue;
             device.add(reading); signature.append(reading.key).append(',');
         }
         if (!signature.toString().equals(devicesShown)) {
@@ -648,7 +648,7 @@ public final class StatsScreen implements AppScreen {
         if (signature.toString().equals(eventsShown)) return;
         eventsShown = signature.toString(); eventsCard.removeAllViews();
         if (events.isEmpty()) {
-            TextView none = ui.text("None yet", 13, false); none.setTextColor(ui.muted);
+            TextView none = ui.text("Ninguno todavía", 13, false); none.setTextColor(ui.muted);
             none.setPadding(0, ui.dp(14), 0, ui.dp(14)); eventsCard.addView(none); return;
         }
         // Newest first; each event keeps its own recorded time.
@@ -688,14 +688,14 @@ public final class StatsScreen implements AppScreen {
     }
     private void updateValueRow(ValueRow row, String key, TelemetryHistory.Reading reading) {
         boolean has = reading != null && reading.value != null, fresh = has && reading.live;
-        String shown = reading == null ? "Not reported" : display(reading);
+        String shown = reading == null ? "No informado" : display(reading);
         row.amount.setText(reading == null ? shown : amountText(reading)); row.amount.setContentDescription(null);
         row.amount.setTextColor(fresh ? ui.text : ui.muted); row.name.setTextColor(fresh ? ui.text : ui.muted);
-        String age = !has ? "Not supplied" : fresh ? "Live" : savedTime(reading.capturedWallMs);
+        String age = !has ? "No suministrado" : fresh ? "En vivo" : savedTime(reading.capturedWallMs);
         row.time.setText(age); row.time.setVisibility(has && !fresh ? View.VISIBLE : View.GONE);
-        row.layout.setContentDescription(row.name.getText() + ", " + (reading == null ? shown : spokenValue(reading)) + ", " + age + ". Tap for details.");
+        row.layout.setContentDescription(row.name.getText() + ", " + (reading == null ? shown : spokenValue(reading)) + ", " + age + ". Toca para ver detalles.");
         if (reading != null && isKnownDriveMode(key)) {
-            row.amount.setContentDescription("Drive mode, " + shown + ", " + age);
+            row.amount.setContentDescription("Modo de conducción, " + shown + ", " + age);
             ui.styleDriveMode(row.amount, shown, reading.live);
         }
     }
@@ -723,15 +723,15 @@ public final class StatsScreen implements AppScreen {
         if (reading == null) return;
         String when = DisplayTime.recent(host.activity(), preferences, reading.capturedWallMs, System.currentTimeMillis());
         // "92 % · Live 14:02"; a raw reading keeps its marker here, where there is no chip.
-        String detail = reading.value == null ? "Not reported" : display(reading) + (raw(reading) ? " (raw)" : "")
-                + " · " + (reading.live ? "Live" : "Last seen") + (when.isEmpty() ? "" : " " + when);
+        String detail = reading.value == null ? "No informado" : display(reading) + (raw(reading) ? " (raw)" : "")
+                + " · " + (reading.live ? "En vivo" : "Visto por última vez") + (when.isEmpty() ? "" : " " + when);
         if (key.equals("stored_trips") && reading.number != null && reading.number >= 1 && reading.value != null && reading.value.startsWith("Trip "))
             detail += "\n\n" + DisplayUnits.metricText(reading.value, preferences.getString("units", "mi"));
         if (key.equals("battery_health_percent")) detail += "\n\nReported health is a controller estimate, not a measured capacity test.";
         if (key.equals("energy_throughput_wh")) detail += "\n\nNot used for ride energy.";
         metricDialog = new AlertDialog.Builder(host.activity()).setTitle(rowLabel(reading)).setMessage(detail)
-                .setNeutralButton(favourites.contains(key) ? "Remove favourite" : "Add favourite", (d, which) -> toggleFavourite(key))
-                .setPositiveButton("Close", null).create(); metricDialog.show();
+                .setNeutralButton(favourites.contains(key) ? "Quitar favorito" : "Añadir a favoritos", (d, which) -> toggleFavourite(key))
+                .setPositiveButton("Cerrar", null).create(); metricDialog.show();
     }
     void resetScroll() { sectionScroll.scrollTo(0, 0); if (readingsScroll != null) readingsScroll.scrollTo(0, 0); clearSavedScroll(); }
     static void clearSavedScroll() { savedSectionScroll = savedReadingsScroll = 0; }
@@ -753,13 +753,13 @@ public final class StatsScreen implements AppScreen {
         ScooterProfiles.Profile profile = service.profiles.active();
         return ModelRegistry.driveModeLabelProduct(profile == null ? null : profile.savedDescriptor());
     }
-    /** Short shared reading name (as on Home); a known UT5 MAX mode is plainly "Drive mode". */
+    /** Short shared reading name (as on Home); a known UT5 MAX mode is plainly "Modo de conducción". */
     private String readingLabel(TelemetryHistory.Reading metric) {
         // Readings and their favourites expose the scooter report, independent of the
         // selected current forecast shown above. Name that source rather than implying
         // this raw observation is Volt's learned estimate.
-        if (metric.key.equals("remaining_range_km")) return "Scooter range";
-        return isKnownDriveMode(metric.key) ? "Drive mode" : ScooterReadingLabels.label(metric.key, metric.label);
+        if (metric.key.equals("remaining_range_km")) return "Autonomía del patinete";
+        return isKnownDriveMode(metric.key) ? "Modo de conducción" : ScooterReadingLabels.label(metric.key, metric.label);
     }
     /**
      * Row name: "raw" is said once, by the chip beside a supplied value, so the name drops it.
@@ -815,7 +815,7 @@ public final class StatsScreen implements AppScreen {
         }
     }
     private String display(TelemetryHistory.Reading metric) {
-        if (metric.value == null) return "Not reported";
+        if (metric.value == null) return "No informado";
         if (isKnownDriveMode(metric.key) && metric.number != null)
             return Telemetry.displayValue(metric.key, Telemetry.drivingModeLabel(driveModeProduct(), metric.number), metric.number);
         if (DisplayTemperature.isTemperature(metric.key) && metric.number != null)
@@ -847,7 +847,7 @@ public final class StatsScreen implements AppScreen {
                 refreshButton.setCompoundDrawablesRelative(spinner, null, null, null);
             } else { refreshButton.setCompoundDrawablesRelative(null, null, null, null); ui.decorate(refreshButton, "recovery"); }
         }
-        refreshButton.setContentDescription(busy ? "Refreshing diagnostic reads" : "Refresh diagnostic reads");
+        refreshButton.setContentDescription(busy ? "Actualizando lecturas de diagnóstico" : "Actualizar lecturas de diagnóstico");
     }
     private boolean refreshInFlight() {
         if (refreshRequestedMs < 0) return false;
@@ -861,7 +861,7 @@ public final class StatsScreen implements AppScreen {
         refreshRequestedMs = -1; return false;
     }
     private String savedTime(long capturedWallMs) {
-        return capturedWallMs <= 0 ? "Last seen" : "Last seen "
+        return capturedWallMs <= 0 ? "Visto por última vez" : "Last seen "
                 + DisplayTime.recent(host.activity(), preferences, capturedWallMs, System.currentTimeMillis());
     }
     private String readingIcon(String key) {

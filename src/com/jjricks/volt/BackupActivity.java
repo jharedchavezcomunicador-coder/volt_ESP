@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * screen; no scooter models are resumed after replacing their storage, even after cancel. */
 public final class BackupActivity extends Activity {
     private static final int PICK_BACKUP=401, SAVE_BACKUP=402;
-    private static final String NO_SPACE="Not enough free storage", CHANGED="Saved data changed. Review again.";
+    private static final String NO_SPACE="No hay suficiente espacio libre", CHANGED="Los datos guardados cambiaron. Revisa de nuevo.";
     private static final ExecutorService WORKER=Executors.newSingleThreadExecutor();
     private static final AtomicInteger OPERATIONS=new AtomicInteger();
     private static boolean sessionStarted;
@@ -84,28 +84,28 @@ public final class BackupActivity extends Activity {
         preselect=getIntent().getStringExtra("preselect");if(preselect!=null&&!AppDataBackup.CATEGORIES.contains(preselect))preselect=null;
         boolean priorSession=sessionStarted;sessionStarted=true;
         if(priorSession || state!=null){
-            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Backup session interrupted");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);
-            terminal=true;closeAction=button("Close Volt",this::requestClose);
+            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Sesión de copia de seguridad interrumpida");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);
+            terminal=true;closeAction=button("Cerrar Volt",this::requestClose);
             // Passwords and staged approval are deliberately never carried through recreation.
             // Let an already approved operation finish, then require a fresh process/models.
             handler.post(new Runnable(){public void run(){if(isDestroyed())return;
-                if(OPERATIONS.get()>0){busy=true;closeAction.setEnabled(false);status.setText("Finishing the previous operation. Keep Volt open.");handler.postDelayed(this,200);}
-                else done("Close and reopen Volt.");}});
+                if(OPERATIONS.get()>0){busy=true;closeAction.setEnabled(false);status.setText("Finalizando la operación anterior. Mantén Volt abierto.");handler.postDelayed(this,200);}
+                else done("Cierra y vuelve a abrir Volt.");}});
             return;
         }
         if(getIntent().getBooleanExtra("recovery",false)){
-            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Recovering your app data");status=paragraph("Keep Volt open while the previous restore is rolled back.");
+            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Recuperando los datos de tu app");status=paragraph("Mantén Volt abierto mientras se revierte la restauración anterior.");
             progress=new ProgressBar(this);content.addView(progress);busy=true;
-            submit(()->{try{AppDataBackup.recover(this);RideBackup.recover(this);show(()->done("Your previous app data was recovered. Close and reopen Volt."));}
-                catch(Exception failure){show(()->done("Recovery failed. Free space, reopen. Don't clear storage."));}});
+            submit(()->{try{AppDataBackup.recover(this);RideBackup.recover(this);show(()->done("Se recuperaron tus datos anteriores de la app. Cierra y vuelve a abrir Volt."));}
+                catch(Exception failure){show(()->done("Error de recuperación. Libera espacio y reabre. No borres el almacenamiento."));}});
             return;
         }
         if(!DataMaintenance.active()){
-            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Backup session ended");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);
-            done("Reopen Volt to continue.");return;
+            DataMaintenance.enter();DataMaintenance.preparedTransfer(new Intent(this,BackupActivity.class));heading("Sesión de copia de seguridad finalizada");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);
+            done("Vuelve a abrir Volt para continuar.");return;
         }
         String preparationError=getIntent().getStringExtra("preparation_error");
-        if(preparationError!=null){heading("App data is paused");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);done(preparationError);return;}
+        if(preparationError!=null){heading("Los datos de la app están pausados");status=paragraph("");progress=new ProgressBar(this);content.addView(progress);done(preparationError);return;}
         if(restore)restoreForm();else backupForm();
     }
 
@@ -120,7 +120,7 @@ public final class BackupActivity extends Activity {
         status=paragraph("");status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         progress=new ProgressBar(this);progress.setVisibility(View.GONE);content.addView(progress);
         action=button(label,callback);action.setTag(tag);
-        closeAction=button("Close Volt",this::requestClose);closeAction.setTag("backup-close");
+        closeAction=button("Cerrar Volt",this::requestClose);closeAction.setTag("backup-close");
     }
     private void label(TextView button,String text){button.setText(text);button.setContentDescription(text);}
     private EditText passwordField(String hint){
@@ -161,7 +161,7 @@ public final class BackupActivity extends Activity {
     }
     /** Select all mirrors the category boxes and checks or clears every enabled one. */
     private void selectAll(LinearLayout list,Runnable changed){
-        CheckBox all=checkRow(list,null,"Select all",null,true,true);all.setTag("backup-select-all");
+        CheckBox all=checkRow(list,null,"Seleccionar todo",null,true,true);all.setTag("backup-select-all");
         boolean[] syncing={false};
         Runnable sync=()->{boolean every=true;for(CheckBox b:boxes.values())if(b.isEnabled()&&!b.isChecked())every=false;syncing[0]=true;all.setChecked(every);syncing[0]=false;if(changed!=null)changed.run();};
         all.setOnCheckedChangeListener((v,on)->{if(syncing[0])return;for(CheckBox b:boxes.values())if(b.isEnabled())b.setChecked(on);sync.run();});
@@ -173,19 +173,19 @@ public final class BackupActivity extends Activity {
     // ---- Back up -----------------------------------------------------------------------------
 
     private void backupForm(){
-        reset("Back up");status=paragraph("Counting your data…");progress=new ProgressBar(this);content.addView(progress);busy=true;
+        reset("Hacer copia de seguridad");status=paragraph("Contando tus datos…");progress=new ProgressBar(this);content.addView(progress);busy=true;
         submit(()->{try{Map<String,long[]> counted=AppDataBackup.inventory(this);show(()->{busy=false;inventory=counted;backupCategories();});}
-            catch(Exception failure){show(()->done("App data can't be read. Reopen Volt."));}});
+            catch(Exception failure){show(()->done("No se pueden leer los datos de la app. Vuelve a abrir Volt."));}});
     }
     private boolean hasItems(String id){return inventory.get(id)[0]>0||inventory.get(id)[1]>0;}
     private void backupCategories(){
-        reset("Back up");
+        reset("Hacer copia de seguridad");
         TextView scope=paragraph("");scope.setTag("backup-scope");
         scope.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
         LinearLayout list=list();LinearLayout categories=new LinearLayout(this);categories.setOrientation(LinearLayout.VERTICAL);
         for(String id:AppDataBackup.CATEGORIES){
             long items=inventory.get(id)[0],bytes=inventory.get(id)[1];String detail;
-            if(!hasItems(id))detail="None";
+            if(!hasItems(id))detail="Ninguno";
             else if(id.equals("scooters"))detail=items+" · Private";
             else if(id.equals("dashboards")||id.equals("scooter-preferences"))detail=BackupArchive.plural((int)items,"scooter");
             else if(id.equals("preferences"))detail="";
@@ -198,12 +198,12 @@ public final class BackupActivity extends Activity {
                 if(e.getValue().isChecked())total+=inventory.get(e.getKey())[1];else if(hasItems(e.getKey()))missing++;
             }
             scope.setText(missing==0?"Full backup · all saved app data, including scooter access."
-                    :"Selected data only · "+missing+" "+(missing==1?"category":"categories")+" excluded.");
-            estimate.setText("About "+size(total));});
+                    :"Selected data only · "+missing+" "+(missing==1?"categoría":"categorías")+" excluidas.");
+            estimate.setText("Aprox. "+size(total));});
         list.addView(categories);content.addView(estimate);
-        paragraph("Permissions and Bluetooth pairing aren't included. Scooter preferences are saved in Volt; restoring them doesn't change settings on the scooter.");
-        password=passwordField("New password");repeat=passwordField("Repeat password");paragraph("Password can't be recovered.");
-        footer("Create backup","backup-create",this::createBackup);
+        paragraph("Los permisos y la vinculación Bluetooth no se incluyen. Las preferencias del patinete se guardan en Volt; restaurarlas no cambia los ajustes en el patinete.");
+        password=passwordField("Nueva contraseña");repeat=passwordField("Repetir contraseña");paragraph("La contraseña no se puede recuperar.");
+        footer("Crear copia de seguridad","backup-create",this::createBackup);
     }
     /** Every category with data checked makes a complete backup, empty categories included. */
     private Set<String> selected(){
@@ -215,85 +215,85 @@ public final class BackupActivity extends Activity {
     private void createBackup(){
         if(busy||waitingForPicker||terminal)return;
         Set<String> categories=selected();
-        if(categories.isEmpty()){status.setText("Choose what to back up.");return;}
+        if(categories.isEmpty()){status.setText("Elige de qué hacer copia de seguridad.");return;}
         exportedComplete=categories.containsAll(AppDataBackup.CATEGORIES);
         char[] secret=new char[password.length()];password.getText().getChars(0,password.length(),secret,0);
-        if(secret.length<8){Arrays.fill(secret,'\0');password.setError("Use at least 8 characters.");return;}
+        if(secret.length<8){Arrays.fill(secret,'\0');password.setError("Usa al menos 8 caracteres.");return;}
         char[] repeated=new char[repeat.length()];repeat.getText().getChars(0,repeat.length(),repeated,0);
         boolean same=Arrays.equals(secret,repeated);Arrays.fill(repeated,'\0');
-        if(!same){Arrays.fill(secret,'\0');repeat.setError("The passwords do not match.");return;}
+        if(!same){Arrays.fill(secret,'\0');repeat.setError("Las contraseñas no coinciden.");return;}
         password.setText("");repeat.setText("");hideKeyboard();
         for(CheckBox box:boxes.values())box.setEnabled(false);
         View all=content.findViewWithTag("backup-select-all");if(all!=null)all.setEnabled(false);
-        setBusy("Encrypting your backup…");
+        setBusy("Cifrando tu copia de seguridad…");
         submit(()->{
             File file=null;
             try{file=File.createTempFile("volt-encrypted-",".voltbackup",getCacheDir());
                 try(OutputStream out=new FileOutputStream(file)){AppDataBackup.write(this,out,secret,categories);}
                 File ready=file;runOnUiThread(()->{if(isDestroyed()||isFinishing()){ready.delete();return;}exported=ready;busy=false;progress.setVisibility(View.GONE);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);launchSave();});
-            }catch(Exception failure){if(file!=null)file.delete();show(()->{for(Map.Entry<String,CheckBox> e:boxes.entrySet())e.getValue().setEnabled(hasItems(e.getKey()));if(all!=null)all.setEnabled(true);retry("Backup failed. Check free space.");});}
+            }catch(Exception failure){if(file!=null)file.delete();show(()->{for(Map.Entry<String,CheckBox> e:boxes.entrySet())e.getValue().setEnabled(hasItems(e.getKey()));if(all!=null)all.setEnabled(true);retry("Error al crear la copia de seguridad. Comprueba el espacio libre.");});}
             finally{Arrays.fill(secret,'\0');}
         });
     }
     private void launchSave(){
         if(busy||waitingForPicker||terminal||isDestroyed()||isFinishing())return;
-        if(exported==null||!exported.isFile()){retry("The backup is unavailable. Create it again.");return;}
+        if(exported==null||!exported.isFile()){retry("La copia de seguridad no está disponible. Créala de nuevo.");return;}
         status.setText("");if(closeAction!=null)closeAction.setEnabled(true);
-        label(action,"Save backup");action.setTag("backup-save");action.setEnabled(true);action.setOnClickListener(v->launchSave());
+        label(action,"Guardar copia de seguridad");action.setTag("backup-save");action.setEnabled(true);action.setOnClickListener(v->launchSave());
         Intent picker=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(AppDataBackup.MIME_TYPE);
         picker.putExtra(Intent.EXTRA_TITLE,(exportedComplete?"volt-full-":"volt-selected-")+new java.text.SimpleDateFormat("yyyy-MM-dd-HHmm",Locale.ROOT).format(new Date())+AppDataBackup.FILE_EXTENSION);
-        try{waitingForPicker=true;startActivityForResult(picker,SAVE_BACKUP);}catch(Exception missing){waitingForPicker=false;status.setText("A file picker could not open. Tap Save to try again.");}
+        try{waitingForPicker=true;startActivityForResult(picker,SAVE_BACKUP);}catch(Exception missing){waitingForPicker=false;status.setText("No se pudo abrir el selector de archivos. Toca Guardar para intentarlo de nuevo.");}
     }
 
     // ---- Restore -----------------------------------------------------------------------------
 
     private void restoreForm(){
-        reset("Restore");paragraph("Choose a Volt backup to recover your saved app data. Older owner setup, ride and layout files also work; you’ll see exactly what they contain before restoring.");paragraph("Permissions and Bluetooth pairing aren't included.");
-        footer("Choose file","restore-choose",this::choose);
+        reset("Restaurar");paragraph("Elige una copia de seguridad de Volt para recuperar los datos guardados de tu app. Los archivos antiguos de configuración de propietario, viajes y diseños también funcionan; verás exactamente qué contienen antes de restaurar.");paragraph("Los permisos y la vinculación Bluetooth no se incluyen.");
+        footer("Elegir archivo","restore-choose",this::choose);
     }
     private void choose(){
         if(busy||waitingForPicker||terminal)return;
         Intent picker=new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*");
-        try{waitingForPicker=true;startActivityForResult(picker,PICK_BACKUP);}catch(Exception missing){waitingForPicker=false;status.setText("A file picker could not open.");}
+        try{waitingForPicker=true;startActivityForResult(picker,PICK_BACKUP);}catch(Exception missing){waitingForPicker=false;status.setText("No se pudo abrir el selector de archivos.");}
     }
     @Override protected void onActivityResult(int request,int result,Intent data){
         super.onActivityResult(request,result,data);waitingForPicker=false;
         if(terminal||isDestroyed()||isFinishing())return;
-        if(result!=RESULT_OK||data==null||data.getData()==null){status.setText("No file selected");return;}
+        if(result!=RESULT_OK||data==null||data.getData()==null){status.setText("Ningún archivo seleccionado");return;}
         Uri uri=data.getData();
-        if(request==PICK_BACKUP){picked=uri;setBusy("Checking the file…");
+        if(request==PICK_BACKUP){picked=uri;setBusy("Comprobando el archivo…");
             submit(()->{int kind;
                 try(InputStream in=getContentResolver().openInputStream(uri)){if(in==null)throw new IOException();byte[] head=new byte[64];int n=0;for(int r;n<head.length&&(r=in.read(head,n,head.length-n))>0;)n+=r;kind=AppDataBackup.sniff(head,n);}
-                catch(Exception failure){show(()->refuseFile("The file could not be opened."));return;}
-                if(kind==AppDataBackup.UNSUPPORTED)show(()->refuseFile("Choose a Volt backup file."));
+                catch(Exception failure){show(()->refuseFile("No se pudo abrir el archivo."));return;}
+                if(kind==AppDataBackup.UNSUPPORTED)show(()->refuseFile("Elige un archivo de copia de seguridad de Volt."));
                 else if(kind==AppDataBackup.ENCRYPTED)show(this::askPassword);
                 else stageFile(null);});
-        }else if(request==SAVE_BACKUP){setBusy("Saving the backup…");
+        }else if(request==SAVE_BACKUP){setBusy("Guardando la copia de seguridad…");
             File ready=exported;
-            submit(()->{try{saveExport(ready,getContentResolver().openOutputStream(uri,"wt"));}catch(Exception failure){show(()->retry("Save failed. Try another place."));}});
+            submit(()->{try{saveExport(ready,getContentResolver().openOutputStream(uri,"wt"));}catch(Exception failure){show(()->retry("Error al guardar. Prueba otra ubicación."));}});
         }
     }
     /** On the worker. Providers can fail during close(): the prepared copy and Save stay until every resource closed. */
     private void saveExport(File ready,OutputStream destination){
         try(OutputStream out=destination;InputStream in=new FileInputStream(ready)){
             if(out==null)throw new IOException();byte[] buffer=new byte[65536];int count;while((count=in.read(buffer))!=-1)out.write(buffer,0,count);out.flush();
-        }catch(Exception failure){show(()->retry("Save failed. Try another place."));return;}
-        ready.delete();show(()->{exported=null;done("Backup saved.");});
+        }catch(Exception failure){show(()->retry("Error al guardar. Prueba otra ubicación."));return;}
+        ready.delete();show(()->{exported=null;done("Copia de seguridad guardada.");});
     }
     /** A file refused before any password: a password step left from an earlier file would blame the password. */
     private void refuseFile(String message){if(password!=null)restoreForm();retry(message);}
     private void askPassword(){
-        retry("");if(password==null){password=passwordField("Backup password");content.removeView(password);content.addView(password,content.indexOfChild(status));}
-        password.requestFocus();label(action,"Open backup");action.setTag("restore-open");action.setOnClickListener(v->openEncrypted());
+        retry("");if(password==null){password=passwordField("Contraseña de la copia de seguridad");content.removeView(password);content.addView(password,content.indexOfChild(status));}
+        password.requestFocus();label(action,"Abrir copia de seguridad");action.setTag("restore-open");action.setOnClickListener(v->openEncrypted());
         // A wrong or damaged file must not strand the rider on it: another file can be chosen here.
-        if(content.findViewWithTag("restore-choose-again")==null){TextView again=ui.secondaryButton("Choose another file",this::choose);again.setTag("restore-choose-again");again.setContentDescription("Choose another file");
+        if(content.findViewWithTag("restore-choose-again")==null){TextView again=ui.secondaryButton("Elegir otro archivo",this::choose);again.setTag("restore-choose-again");again.setContentDescription("Elegir otro archivo");
             LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(-1,-2);p.topMargin=ui.dp(12);content.addView(again,content.indexOfChild(closeAction),p);}
     }
     private void openEncrypted(){
         if(busy||terminal||picked==null)return;
         char[] secret=new char[password.length()];password.getText().getChars(0,password.length(),secret,0);
-        if(secret.length<8){Arrays.fill(secret,'\0');password.setError("Use at least 8 characters.");return;}
-        password.setText("");hideKeyboard();setBusy("Checking backup…");
+        if(secret.length<8){Arrays.fill(secret,'\0');password.setError("Usa al menos 8 caracteres.");return;}
+        password.setText("");hideKeyboard();setBusy("Comprobando la copia de seguridad…");
         submit(()->stageFile(secret));
     }
     /** On the worker. */
@@ -302,23 +302,23 @@ public final class BackupActivity extends Activity {
             if(in==null)throw new IOException();
             AppDataBackup.PreparedRestore checked=AppDataBackup.stage(this,in,secret);boolean data=AppDataBackup.hasData(this);
             runOnUiThread(()->{if(isDestroyed()||isFinishing()){submit(()->discardQuietly(checked));return;}staged=checked;hasData=data;busy=false;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);restoreCategories();});
-        }catch(Exception failure){show(()->{if(secret!=null)retry("Wrong password or bad file.");else refuseFile(message(failure));});}
+        }catch(Exception failure){show(()->{if(secret!=null)retry("Contraseña incorrecta o archivo dañado.");else refuseFile(message(failure));});}
         finally{if(secret!=null)Arrays.fill(secret,'\0');}
     }
     private void restoreCategories(){
-        reset("Restore");
+        reset("Restaurar");
         String date=staged.createdAtMs>0?java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM,java.text.DateFormat.SHORT).format(new Date(staged.createdAtMs)):null;
         paragraph(staged.format.equals("owner")?"Owner setup file · scooter access only"
-                :staged.format.equals("layout")?"Layout file":(staged.format.equals("rides")?"Ride backup":staged.complete?"Full backup":"Selected data backup")+(date==null?"":" from "+date));
+                :staged.format.equals("layout")?"Archivo de diseño":(staged.format.equals("rides")?"Copia de viajes":staged.complete?"Copia de seguridad completa":"Copia de datos seleccionados")+(date==null?"":" del "+date));
         if(staged.format.equals("owner")){
-            TextView warning=paragraph("This file has no rides, charges, history, dashboards or app settings. It only restores scooter access. Your existing data stays on this phone.");
+            TextView warning=paragraph("Este archivo no contiene viajes, cargas, historial, paneles ni ajustes de la app. Solo restaura el acceso al patinete. Tus datos existentes permanecen en este teléfono.");
             warning.setTag("restore-owner-only");
-        }else if(!staged.complete)paragraph("Only the categories listed below are in this file. Other app data stays on this phone.");
+        }else if(!staged.complete)paragraph("Solo las categorías listadas abajo están en este archivo. El resto de datos de la app permanecen en este teléfono.");
         LinearLayout list=list();LinearLayout categories=new LinearLayout(this);categories.setOrientation(LinearLayout.VERTICAL);
         boolean preselected=preselect!=null&&staged.categories.containsKey(preselect);
         for(Map.Entry<String,Integer> category:staged.categories.entrySet()){
             String id=category.getKey();int count=category.getValue();String detail;
-            if(count==0)detail="None";
+            if(count==0)detail="Ninguno";
             else if(id.equals("rides"))detail=BackupArchive.plural(count,"ride");
             else if(id.equals("charges"))detail=BackupArchive.plural(count,"charge");
             else if(id.equals("preferences"))detail=BackupArchive.plural(count,"setting");
@@ -328,14 +328,14 @@ public final class BackupActivity extends Activity {
         if(boxes.size()>1)selectAll(list,null);
         list.addView(categories);
         if(staged.complete){
-            replaceAll=new Switch(this);replaceAll.setText("Replace everything on this phone");replaceAll.setTextColor(ui.text);replaceAll.setTextSize(TypedValue.COMPLEX_UNIT_SP,15*textScale);
+            replaceAll=new Switch(this);replaceAll.setText("Reemplazar todo en este teléfono");replaceAll.setTextColor(ui.text);replaceAll.setTextSize(TypedValue.COMPLEX_UNIT_SP,15*textScale);
             replaceAll.setMinHeight(ui.dp(48));ui.styleSwitch(replaceAll);replaceAll.setTag("restore-replace-all");
             replaceAll.setOnCheckedChangeListener((v,on)->{for(Map.Entry<String,CheckBox> e:boxes.entrySet()){boolean has=staged.categories.get(e.getKey())>0;if(on||!has)e.getValue().setChecked(on);e.getValue().setEnabled(!on&&has);}});
             LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(-1,-2);sp.topMargin=ui.dp(12);content.addView(replaceAll,sp);
             // A cleared or new phone gets an exact copy by default; a phone with data merges.
             replaceAll.setChecked(!hasData&&!preselected);
         }
-        footer("Next","restore-next",this::next);
+        footer("Siguiente","restore-next",this::next);
     }
     private boolean replacing(){return replaceAll!=null&&replaceAll.isChecked();}
     private void next(){
@@ -343,16 +343,16 @@ public final class BackupActivity extends Activity {
         Set<String> categories=new LinkedHashSet<>();
         if(replacing())categories.addAll(AppDataBackup.CATEGORIES);
         else for(Map.Entry<String,CheckBox> e:boxes.entrySet())if(e.getValue().isChecked())categories.add(e.getKey());
-        if(categories.isEmpty()){status.setText("Choose what to restore.");return;}
+        if(categories.isEmpty()){status.setText("Elige qué restaurar.");return;}
         if(replacing()){review(categories,true,Collections.<String,String>emptyMap());return;}
-        AppDataBackup.PreparedRestore current=staged;setBusy("Checking scooters…");
+        AppDataBackup.PreparedRestore current=staged;setBusy("Comprobando patinetes…");
         submit(()->{try{List<AppDataBackup.Destination> needed=AppDataBackup.destinations(this,current,categories);Map<String,String> local=AppDataBackup.localScooters(this);
                 show(()->{if(needed.isEmpty())review(categories,false,Collections.<String,String>emptyMap());else scooters(categories,needed,local);});}
             catch(Exception failure){show(()->retry(message(failure)));}});
     }
     private void scooters(Set<String> categories,List<AppDataBackup.Destination> needed,Map<String,String> local){
         busy=false;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        reset("Scooters");
+        reset("Patinetes");
         LinkedHashMap<String,Spinner> choices=new LinkedHashMap<>();LinkedHashMap<String,List<String>> targets=new LinkedHashMap<>();boolean onlySkip=true;
         Runnable updateReady=()->{
             boolean resolved=true;
@@ -361,32 +361,32 @@ public final class BackupActivity extends Activity {
         };
         for(AppDataBackup.Destination d:needed){
             boolean accountChoice=!d.accountMatches.isEmpty();
-            paragraph(accountChoice?"Which scooter is this setup for?":d.source.equals(BackupArchive.LAYOUT_SOURCE)?"Layout goes to:":"Data from “"+d.name+"” goes to:");
-            if(accountChoice)paragraph("More than one scooter can use this setup file. Choose an existing scooter or add another.").setTag("restore-owner-choice");
+            paragraph(accountChoice?"¿Para qué patinete es esta configuración?":d.source.equals(BackupArchive.LAYOUT_SOURCE)?"El diseño va a:":"Los datos de “"+d.name+"” van a:");
+            if(accountChoice)paragraph("Más de un patinete puede usar este archivo de configuración. Elige un patinete existente o añade otro.").setTag("restore-owner-choice");
             List<String> ids=new ArrayList<>(),names=new ArrayList<>();
-            if(accountChoice){ids.add(null);names.add("Choose a scooter…");}
+            if(accountChoice){ids.add(null);names.add("Elige un patinete…");}
             for(Map.Entry<String,String> scooter:local.entrySet())if(!accountChoice||d.accountMatches.contains(scooter.getKey())){ids.add(scooter.getKey());names.add(scooter.getValue());}
-            if(d.addable){ids.add(d.source);names.add(accountChoice?"Add another scooter":"Add from backup");}
-            ids.add(AppDataBackup.SKIP);names.add("Don't restore");
+            if(d.addable){ids.add(d.source);names.add(accountChoice?"Añadir otro patinete":"Añadir de la copia");}
+            ids.add(AppDataBackup.SKIP);names.add("No restaurar");
             onlySkip&=ids.size()==1;
             Spinner choice=new Spinner(this);ArrayAdapter<String> adapter=new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,names);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);choice.setAdapter(adapter);choice.setMinimumHeight(ui.dp(56));
-            choice.setContentDescription("Destination for "+d.name);choice.setTag("restore-destination");
+            choice.setContentDescription("Destino para "+d.name);choice.setTag("restore-destination");
             choice.setSelection(accountChoice?0:d.suggested==null?ids.size()-1:Math.max(0,ids.indexOf(d.suggested)));
             // A description replaces the spoken value, so it carries the current choice too.
             final String source=d.name;
             choice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-                public void onItemSelected(AdapterView<?> parent,View view,int position,long id){parent.setContentDescription("Destination for "+source+": "+names.get(position));updateReady.run();}
+                public void onItemSelected(AdapterView<?> parent,View view,int position,long id){parent.setContentDescription("Destino para "+source+": "+names.get(position));updateReady.run();}
                 public void onNothingSelected(AdapterView<?> parent){}});
-            choice.setContentDescription("Destination for "+source+": "+names.get(choice.getSelectedItemPosition()));
+            choice.setContentDescription("Destino para "+source+": "+names.get(choice.getSelectedItemPosition()));
             content.addView(choice,new LinearLayout.LayoutParams(-1,-2));choices.put(d.source,choice);targets.put(d.source,ids);
         }
-        if(onlySkip)paragraph("Include Scooters or set up a scooter first.");
-        footer("Review","restore-review",()->{
+        if(onlySkip)paragraph("Incluye Patinetes o configura un patinete primero.");
+        footer("Revisar","restore-review",()->{
             Map<String,String> chosen=new LinkedHashMap<>();
             for(Map.Entry<String,Spinner> e:choices.entrySet()){
                 String target=targets.get(e.getKey()).get(e.getValue().getSelectedItemPosition());
-                if(target==null){status.setText("Choose a scooter first.");return;}chosen.put(e.getKey(),target);
+                if(target==null){status.setText("Elige un patinete primero.");return;}chosen.put(e.getKey(),target);
             }
             review(categories,false,chosen);
         });
@@ -395,49 +395,49 @@ public final class BackupActivity extends Activity {
     private void review(Set<String> categories,boolean replace,Map<String,String> chosen){review(categories,replace,chosen,null);}
     /** A non-null note means saved data changed after the last review: the new one replaces it, or the choices start over. */
     private void review(Set<String> categories,boolean replace,Map<String,String> chosen,String note){
-        AppDataBackup.PreparedRestore current=staged;setBusy("Comparing with this phone…");
+        AppDataBackup.PreparedRestore current=staged;setBusy("Comparando con este teléfono…");
         submit(()->{try{AppDataBackup.Review checked=AppDataBackup.review(this,current,categories,replace,chosen);show(()->showReview(checked,()->review(categories,replace,chosen,CHANGED),note));}
             catch(Exception failure){show(()->{if(note!=null)restoreCategories();retry(message(failure));});}});
     }
     private void showReview(AppDataBackup.Review review,Runnable again,String note){
         busy=false;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        reset("Review");
+        reset("Revisar");
         LinearLayout list=list();list.setTag("restore-preview");list.setPadding(ui.dp(14),ui.dp(6),ui.dp(14),ui.dp(6));
         for(String line:review.lines)paragraph(list,line).setTextColor(ui.text);
-        if(staged!=null&&staged.format.equals("owner"))paragraph("Scooter access only. This file contains no rides or other app data.").setTag("restore-owner-only");
-        paragraph("Volt closes when the restore is done.");
-        footer(review.replace?"Replace everything":"Restore","restore-apply",()->applyRestore(review,again));
+        if(staged!=null&&staged.format.equals("owner"))paragraph("Solo acceso al patinete. Este archivo no contiene viajes ni otros datos de la app.").setTag("restore-owner-only");
+        paragraph("Volt se cerrará cuando se complete la restauración.");
+        footer(review.replace?"Reemplazar todo":"Restaurar","restore-apply",()->applyRestore(review,again));
         if(note!=null)status.setText(note);
     }
     private void applyRestore(AppDataBackup.Review review,Runnable again){
-        if(staged==null||busy)return;AppDataBackup.PreparedRestore approved=staged;setBusy("Restoring your data…");
-        submit(()->{try{AppDataBackup.apply(this,review);show(()->{staged=null;done("Restored. Reopen Volt.");});}
+        if(staged==null||busy)return;AppDataBackup.PreparedRestore approved=staged;setBusy("Restaurando tus datos…");
+        submit(()->{try{AppDataBackup.apply(this,review);show(()->{staged=null;done("Restaurado. Vuelve a abrir Volt.");});}
             catch(Exception failure){
                 String text=failure.getMessage();
                 // Refused before any change: the reviewed file is still staged. A changed phone gets a fresh review, never the stale approval.
                 if(CHANGED.equals(text)){show(again);return;}
                 if(NO_SPACE.equals(text)){show(()->retry(text));return;}
                 discardQuietly(approved);
-                show(()->{staged=null;done("Restore failed. Reopen Volt. Don't clear storage.");});
+                show(()->{staged=null;done("Error al restaurar. Reabre Volt. No borres el almacenamiento.");});
             }});
     }
 
     // ---- Lifecycle ---------------------------------------------------------------------------
 
-    private static String message(Exception failure){String text=failure.getMessage();return failure instanceof IOException&&text!=null&&text.length()<=80?text:"The file could not be read.";}
+    private static String message(Exception failure){String text=failure.getMessage();return failure instanceof IOException&&text!=null&&text.length()<=80?text:"No se pudo leer el archivo.";}
     private void hideKeyboard(){View focus=getCurrentFocus();if(focus!=null)((android.view.inputmethod.InputMethodManager)getSystemService(INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(focus.getWindowToken(),0);}
     private static void submit(Runnable work){OPERATIONS.incrementAndGet();WORKER.execute(()->{try{work.run();}finally{OPERATIONS.decrementAndGet();}});}
     private void show(Runnable update){runOnUiThread(()->{if(!isDestroyed()&&!isFinishing())update.run();});}
     private void discardQuietly(AppDataBackup.PreparedRestore value){try{AppDataBackup.discard(this,value);}catch(IOException ignored){/* Startup recovery removes abandoned staging; never remove a transaction here. */}}
     private void setBusy(String message){busy=true;status.setText(message);progress.setVisibility(View.VISIBLE);if(action!=null)action.setEnabled(false);if(closeAction!=null)closeAction.setEnabled(false);getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
     private void retry(String message){busy=false;status.setText(message);progress.setVisibility(View.GONE);if(action!=null)action.setEnabled(true);if(closeAction!=null)closeAction.setEnabled(true);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
-    private void done(String message){busy=false;terminal=true;status.setText(message);progress.setVisibility(View.GONE);if(action!=null)action.setVisibility(View.GONE);if(closeAction==null)closeAction=button("Close Volt",this::requestClose);closeAction.setEnabled(true);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
+    private void done(String message){busy=false;terminal=true;status.setText(message);progress.setVisibility(View.GONE);if(action!=null)action.setVisibility(View.GONE);if(closeAction==null)closeAction=button("Cerrar Volt",this::requestClose);closeAction.setEnabled(true);getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
     private void requestClose(){
         // Close Volt is disabled while busy; Back lands here too and simply waits.
         if(busy||OPERATIONS.get()>0)return;
         if(terminal){closeProcess();return;}
-        confirmation=new AlertDialog.Builder(this).setTitle("Close Volt?").setMessage("Nothing has changed.")
-                .setNegativeButton("Stay here",null).setPositiveButton("Close",(d,n)->closeProcess()).show();
+        confirmation=new AlertDialog.Builder(this).setTitle("¿Cerrar Volt?").setMessage("Nada ha cambiado.")
+                .setNegativeButton("Permanecer aquí",null).setPositiveButton("Cerrar",(d,n)->closeProcess()).show();
     }
     private void closeProcess(){
         if(busy||OPERATIONS.get()>0)return;

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * "Which scooter is this?" inside a Volt sheet: a search box, then NAVEE's line-up (NaveeModels)
+ * "¿Qué patinete es este?" inside a Volt sheet: a search box, then NAVEE's line-up (NaveeModels)
  * as one card of radio rows per series, scrolling in all the height the sheet has, with Not sure
  * and a write-in for a name that isn't listed. Below it, a status line and the sheet's one action.
  */
@@ -42,9 +42,9 @@ final class ModelPicker {
     /** Fills a sheet (its title row already added) whose height is fixed; spinner may be null. */
     void build(LinearLayout sheet, View spinner, String primaryLabel, Runnable action) {
         search = new EditText(activity); ui.styleSearch(search);
-        search.setHint("Search models"); search.setSingleLine(true);
+        search.setHint("Buscar modelos"); search.setSingleLine(true);
         search.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS); search.setImeOptions(EditorInfo.IME_ACTION_DONE);
-        search.setContentDescription("Search scooter models"); search.setTag("model-search");
+        search.setContentDescription("Buscar modelos de patinete"); search.setTag("model-search");
         search.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
             @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
@@ -81,15 +81,15 @@ final class ModelPicker {
         list.removeAllViews(); choiceShown = false;
         String query = search.getText().toString(), typed = NaveeModels.typed(query);
         if (typed.isEmpty()) {
-            LinearLayout card = ui.groupCard(); card.addView(row("Not sure", NaveeModels.Choice.unsure(), "model-unsure"));
+            LinearLayout card = ui.groupCard(); card.addView(row("No estoy seguro", NaveeModels.Choice.unsure(), "model-unsure"));
             ((LinearLayout.LayoutParams) card.getLayoutParams()).topMargin = ui.dp(12); list.addView(card);
         } else if (NaveeModels.exact(typed) == null && writeIn) {
-            list.addView(ui.sectionLabel("Not listed"));
-            LinearLayout card = ui.groupCard(); card.addView(row("Use “" + typed + "”", NaveeModels.Choice.typedName(typed), "model-typed")); list.addView(card);
+            list.addView(ui.sectionLabel("No aparece en la lista"));
+            LinearLayout card = ui.groupCard(); card.addView(row("Usar “" + typed + "”", NaveeModels.Choice.typedName(typed), "model-typed")); list.addView(card);
         }
         List<String> matches = NaveeModels.search(query);
         if (!writeIn && !typed.isEmpty() && matches.isEmpty()) {
-            TextView none = ui.caption("No listed model matches “" + typed + "”. Clear the search to choose one, or Not sure.");
+            TextView none = ui.caption("Ningún modelo de la lista coincide con “" + typed + "”. Clear the search to choose one, or Not sure.");
             none.setTag("model-none"); none.setPadding(ui.dp(4), ui.dp(16), ui.dp(4), 0); list.addView(none);
         }
         LinearLayout card = null; NaveeModels.Series shown = null;

@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 /** Searchable, lazy chart views over the same numerical observations that the phone retains. */
 final class StatsCharts {
     static final long[] WINDOWS = {120000, 600000, 3600000, 21600000, 86400000, 604800000, 2592000000L, 0};
-    static final String[] WINDOW_LABELS = {"2 min", "10 min", "1 hour", "6 hours", "24 hours", "7 days", "30 days", "All"};
+    static final String[] WINDOW_LABELS = {"2 min", "10 min", "1 hora", "6 horas", "24 horas", "7 días", "30 días", "Todo"};
     final LinearLayout view;
     final EditText search;
     final LinkedHashMap<String, Group> groups = new LinkedHashMap<>();
@@ -72,8 +72,8 @@ final class StatsCharts {
         windowSelector = selector(); windowSelector.setTag("stats-chart-window");
         LinearLayout.LayoutParams pickerSpace = new LinearLayout.LayoutParams(-1, -2); pickerSpace.bottomMargin = ui.dp(12);
         view.addView(windowSelector, pickerSpace);
-        search = new EditText(host.activity()); search.setSingleLine(true); search.setHint("Search");
-        ui.styleSearch(search); search.setContentDescription("Search recorded charts");
+        search = new EditText(host.activity()); search.setSingleLine(true); search.setHint("Buscar");
+        ui.styleSearch(search); search.setContentDescription("Buscar gráficos registrados");
         query = prefs.getString("stats_chart_query", ""); search.setText(query);
         view.addView(search, ui.searchLayout()); SearchFocus.bind(search, host.activity().getWindow());
         count = ui.caption(""); count.setGravity(Gravity.END); count.setMinHeight(ui.dp(48));
@@ -132,7 +132,7 @@ final class StatsCharts {
     private void rebuild() {
         StringBuilder signature = new StringBuilder();
         for (String key : catalog.keySet()) if (recorded.contains(key)) signature.append(key).append('\n');
-        if (signature.toString().equals(catalogSignature)) { if (cards.isEmpty()) count.setText("No chart data yet"); return; }
+        if (signature.toString().equals(catalogSignature)) { if (cards.isEmpty()) count.setText("Aún no hay datos de gráficos"); return; }
         catalogSignature = signature.toString();
         for (Card card : cards.values()) release(card);
         cards.clear(); groups.clear(); groupHolder.removeAllViews();
@@ -160,11 +160,11 @@ final class StatsCharts {
             android.graphics.drawable.Drawable arrow = new StatsScreen.StatsGlyph(false, open, ui.text);
             arrow.setBounds(0, 0, ui.dp(26), ui.dp(26));
             group.title.setCompoundDrawablesRelative(null, null, arrow, null);
-            group.title.setContentDescription(entry.getKey() + " charts, " + (open ? "expanded" : "collapsed"));
-            if (Build.VERSION.SDK_INT >= 30) group.title.setStateDescription(open ? "Expanded" : "Collapsed");
+            group.title.setContentDescription(entry.getKey() + " charts, " + (open ? "expandido" : "plegado"));
+            if (Build.VERSION.SDK_INT >= 30) group.title.setStateDescription(open ? "Expandido" : "Plegado");
             matches += groupMatches;
         }
-        count.setText(cards.isEmpty() ? "No chart data yet" : matches == 0 ? "No matching charts" : matches + (matches == 1 ? " chart" : " charts"));
+        count.setText(cards.isEmpty() ? "Aún no hay datos de gráficos" : matches == 0 ? "No hay gráficos coincidentes" : matches + (matches == 1 ? " gráfico" : " gráficos"));
         view.post(this::refreshVisible);
     }
     Card favourite(String key) { return new Card(key, true); }
@@ -193,7 +193,7 @@ final class StatsCharts {
             star.setOnClickListener(v -> { Haptics.toggle(v, !favourites.contains(key)); toggleFavourite.accept(key); });
             heading.addView(star, new LinearLayout.LayoutParams(ui.dp(48), ui.dp(48)));
             TextView expand = ui.text("⤢", 24, false); expand.setGravity(Gravity.CENTER); expand.setFocusable(true);
-            expand.setContentDescription("Expand " + label(key) + " chart"); expand.setOnClickListener(v -> expand(key));
+            expand.setContentDescription("Expandir " + label(key) + " gráfico"); expand.setOnClickListener(v -> expand(key));
             heading.addView(expand, new LinearLayout.LayoutParams(ui.dp(48), ui.dp(48)));
             view.addView(heading);
             latest = ui.caption(""); latest.setPadding(0, ui.dp(2), 0, ui.dp(4)); view.addView(latest);
@@ -204,7 +204,7 @@ final class StatsCharts {
             boolean on = favourites.contains(key); star.setText(on ? "★" : "☆"); star.setSelected(on);
             star.setTextColor(on ? ui.orange : ui.dim);
             star.setContentDescription((on ? "Remove " : "Add ") + label(key) + " chart " + (on ? "from" : "to") + " favourites");
-            if (Build.VERSION.SDK_INT >= 30) star.setStateDescription(on ? "Favourite" : "Not a favourite");
+            if (Build.VERSION.SDK_INT >= 30) star.setStateDescription(on ? "Favorito" : "No es favorito");
         }
         private void ensureGraph() {
             if (graph != null) return;
@@ -222,8 +222,8 @@ final class StatsCharts {
             TelemetryHistory.Reading reading = service.displayReadings().get(key);
             long wall = System.currentTimeMillis(), now = SystemClock.elapsedRealtime(), window = WINDOWS[windowIndex];
             boolean live = reading != null && reading.live && reading.number != null;
-            latest.setText(reading == null || reading.number == null ? "Not reported" : value(key, reading.number)
-                    + (service.simulating() ? " · Sample" : live ? "" : " · Last seen " + DisplayTime.recent(host.activity(), prefs, reading.capturedWallMs, wall)));
+            latest.setText(reading == null || reading.number == null ? "No informado" : value(key, reading.number)
+                    + (service.simulating() ? " · Sample" : live ? "" : " · Visto por última vez " + DisplayTime.recent(host.activity(), prefs, reading.capturedWallMs, wall)));
             latest.setTextColor(live ? ui.text : ui.muted);
             if (service.simulating()) {
                 // The sample source is never persisted or mixed into real observations.
@@ -258,15 +258,15 @@ final class StatsCharts {
                 points.add(new Ui.Point(p.wallMs, number(key, p.value), p.gapBefore));
             // Until the first stored-history answer arrives, an empty chart spins instead of claiming no data.
             boolean loading = !loaded && points.isEmpty();
-            graph.set(points, unit(key), live ? ui.accent : ui.muted, loading ? "" : "No data in this window");
+            graph.set(points, unit(key), live ? ui.accent : ui.muted, loading ? "" : "No hay datos en esta ventana");
             if (loading && spinner == null) spinner = new Spinner(ui, false);
             graph.setForegroundGravity(Gravity.CENTER); graph.setForeground(loading ? spinner : null);
-            if (loading) graph.setContentDescription("Loading chart");
+            if (loading) graph.setContentDescription("Cargando gráfico");
         }
     }
     /** The short shared name (as on Home and Readings); charts keep "(raw)" since they have no chip. */
     private String label(String key) {
-        if (key.equals("remaining_range_km")) return "Scooter range";
+        if (key.equals("remaining_range_km")) return "Autonomía del patinete";
         TelemetryHistory.Reading r = catalog.get(key);
         return r == null ? key : ScooterReadingLabels.label(key, r.label);
     }
@@ -318,7 +318,7 @@ final class StatsCharts {
         LinearLayout content = column(); content.setPadding(ui.dp(18), ui.dp(18), ui.dp(18), ui.dp(18)); content.setBackgroundColor(ui.bg);
         LinearLayout top = new LinearLayout(host.activity()); top.setGravity(Gravity.CENTER_VERTICAL);
         TextView title = ui.text(label(key), 20, true); top.addView(title, new LinearLayout.LayoutParams(0, -2, 1));
-        TextView close = ui.text("×", 26, false); close.setGravity(Gravity.CENTER); close.setContentDescription("Close expanded chart");
+        TextView close = ui.text("×", 26, false); close.setGravity(Gravity.CENTER); close.setContentDescription("Cerrar gráfico expandido");
         close.setOnClickListener(v -> fullscreen.dismiss()); top.addView(close, new LinearLayout.LayoutParams(ui.dp(48), ui.dp(48))); content.addView(top);
         fullscreenWindow = selector(); content.addView(fullscreenWindow, new LinearLayout.LayoutParams(-1, -2));
         fullscreenCard = new Card(key, false); fullscreenCard.ensureGraph();
